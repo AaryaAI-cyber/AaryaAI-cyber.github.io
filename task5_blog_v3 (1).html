@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarya's Blog — Tech, Life & Everything In Between</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FDF6F0;--rose:#C94470;--sakura:#F4A7C0;--blush:#FAE1EA;
+  --deep:#1A0A14;--muted:#7A5060;--gb:rgba(212,84,122,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;cursor:none!important;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--deep);font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh;}
+
+/* Petals */
+.petal{position:fixed;top:-30px;pointer-events:none;z-index:1;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:.6;}100%{transform:translateY(108vh) translateX(25px) rotate(360deg);opacity:0;}}
+
+/* ===================== EPIC CURSOR ===================== */
+#cursor-dot{position:fixed;pointer-events:none;z-index:9999;top:0;left:0;
+  width:12px;height:12px;background:var(--rose);border-radius:50%;
+  transform:translate(-50%,-50%);transition:transform .08s,width .2s,height .2s,background .2s;
+  mix-blend-mode:multiply;}
+#cursor-ring{position:fixed;pointer-events:none;z-index:9998;top:0;left:0;
+  width:36px;height:36px;border:2px dashed rgba(201,68,112,.5);border-radius:50%;
+  transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s;
+  animation:spin 4s linear infinite;}
+@keyframes spin{to{rotate:360deg;}}
+/* Sparkle trail */
+.spark{position:fixed;pointer-events:none;z-index:9997;border-radius:50%;
+  animation:sparkFade .6s ease-out forwards;}
+@keyframes sparkFade{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(0);opacity:0;}}
+/* Click explosion */
+.explode{position:fixed;pointer-events:none;z-index:9997;
+  animation:explodeOut .7s cubic-bezier(.22,1,.36,1) forwards;}
+@keyframes explodeOut{
+  0%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(0) scale(1);opacity:1;}
+  100%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(var(--d)) scale(.1);opacity:0;}}
+.click-ring{position:fixed;pointer-events:none;z-index:9996;border-radius:50%;
+  border:2px solid var(--rose);transform:translate(-50%,-50%);
+  animation:ringOut .6s ease-out forwards;}
+@keyframes ringOut{0%{width:4px;height:4px;opacity:1;}100%{width:70px;height:70px;opacity:0;}}
+.click-ring2{position:fixed;pointer-events:none;z-index:9995;border-radius:50%;
+  border:1px solid var(--sakura);transform:translate(-50%,-50%);
+  animation:ringOut2 .8s ease-out .1s forwards;}
+@keyframes ringOut2{0%{width:4px;height:4px;opacity:.8;}100%{width:100px;height:100px;opacity:0;}}
+.emoji-pop{position:fixed;pointer-events:none;z-index:9997;
+  animation:emojiPop .8s cubic-bezier(.22,1,.36,1) forwards;font-size:18px;}
+@keyframes emojiPop{
+  0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg);opacity:1;}
+  50%{transform:translate(var(--ex),var(--ey)) scale(1.3) rotate(15deg);opacity:1;}
+  100%{transform:translate(var(--ex2),var(--ey2)) scale(.5) rotate(30deg);opacity:0;}}
+/* ====================================================== */
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(253,246,240,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;
+  color:var(--rose);text-decoration:none;display:flex;align-items:center;gap:.4rem;}
+.nav-logo em{font-style:italic;}
+.nav-back{font-size:.78rem;font-weight:500;color:var(--muted);text-decoration:none;
+  border:1px solid var(--gb);padding:.35rem .9rem;border-radius:100px;transition:all .3s;}
+.nav-back:hover{border-color:var(--rose);color:var(--rose);}
+
+/* Hero */
+.hero{padding:9rem 2.5rem 5rem;max-width:900px;margin:0 auto;position:relative;}
+.hero-label{font-family:'Caveat',cursive;font-size:1.15rem;color:var(--rose);
+  display:inline-block;transform:rotate(-1.5deg);margin-bottom:.8rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:700;line-height:.95;color:var(--deep);margin-bottom:1.5rem;}
+.hero-title em{color:var(--rose);font-style:italic;}
+.hero-sub{font-size:.98rem;color:var(--muted);max-width:440px;line-height:1.8;}
+.hero-deco{position:absolute;right:2rem;top:9rem;font-size:3.5rem;
+  animation:flt 5s ease-in-out infinite;opacity:.8;}
+@keyframes flt{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+
+/* Filter */
+.filter-bar{max-width:900px;margin:0 auto 2.5rem;padding:0 2.5rem;
+  display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;}
+.filter-btn{font-size:.78rem;font-weight:500;padding:.42rem 1.1rem;border-radius:100px;
+  border:1.5px solid var(--gb);background:white;color:var(--muted);
+  transition:all .3s;font-family:'DM Sans',sans-serif;}
+.filter-btn:hover{border-color:var(--rose);color:var(--rose);}
+.filter-btn.active{background:var(--rose);color:white;border-color:var(--rose);}
+
+/* Blog grid */
+.blog-grid{max-width:900px;margin:0 auto;padding:0 2.5rem 6rem;display:grid;gap:1.8rem;}
+
+/* Featured */
+.post-featured{background:white;border:1px solid var(--gb);border-radius:2rem;
+  overflow:hidden;display:grid;grid-template-columns:1fr 1fr;
+  transition:all .4s cubic-bezier(.22,1,.36,1);}
+.post-featured:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(201,68,112,.12);}
+.pf-img{background:linear-gradient(135deg,#FAE1EA,#F4A7C0,#E8799A);
+  min-height:260px;display:flex;align-items:center;justify-content:center;font-size:5rem;}
+.pf-body{padding:2.2rem;}
+.tag{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rose);background:rgba(201,68,112,.1);
+  padding:.2rem .65rem;border-radius:100px;display:inline-block;margin-bottom:.9rem;}
+.pf-body h2{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;
+  line-height:1.2;margin-bottom:.9rem;transition:color .3s;}
+.pf-body:hover h2{color:var(--rose);}
+.pf-body p{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:1.3rem;}
+.pmeta{display:flex;align-items:center;gap:.6rem;font-size:.76rem;color:var(--muted);}
+.av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--sakura),var(--rose));
+  display:flex;align-items:center;justify-content:center;color:white;
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:.75rem;}
+
+/* Cards row */
+.posts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.post-card{background:white;border:1px solid var(--gb);border-radius:1.5rem;
+  overflow:hidden;transition:all .4s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;}
+.post-card:hover{transform:translateY(-5px);box-shadow:0 18px 50px rgba(201,68,122,.1);}
+.pc-img{height:170px;display:flex;align-items:center;justify-content:center;font-size:3.2rem;}
+.pc-img.tech{background:linear-gradient(135deg,#E8F4FD,#B8D9F5);}
+.pc-img.life{background:linear-gradient(135deg,#FAE1EA,#F4C2D4);}
+.pc-img.ai{background:linear-gradient(135deg,#E8EAF6,#C5C8E8);}
+.pc-body{padding:1.4rem;flex:1;display:flex;flex-direction:column;}
+.pc-body h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;
+  line-height:1.25;margin-bottom:.65rem;transition:color .3s;}
+.post-card:hover .pc-body h3{color:var(--rose);}
+.pc-body p{font-size:.84rem;color:var(--muted);line-height:1.75;flex:1;margin-bottom:1rem;}
+.pc-meta{display:flex;align-items:center;justify-content:space-between;
+  font-size:.73rem;color:var(--muted);padding-top:.8rem;border-top:1px solid var(--gb);}
+.pc-meta .left{display:flex;align-items:center;gap:.45rem;}
+.av-sm{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--sakura),var(--rose));
+  display:flex;align-items:center;justify-content:center;color:white;
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:.6rem;}
+.rtime{font-size:.7rem;background:var(--blush);color:var(--rose);padding:.13rem .55rem;border-radius:100px;}
+
+/* Wide card */
+.post-wide{background:white;border:1px solid var(--gb);border-radius:1.5rem;
+  overflow:hidden;display:grid;grid-template-columns:160px 1fr;
+  transition:all .4s cubic-bezier(.22,1,.36,1);}
+.post-wide:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(201,68,112,.1);}
+.pw-img{background:linear-gradient(135deg,#E8F4FD,#B8D9F5);
+  display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
+.pw-body{padding:1.3rem 1.5rem;display:flex;flex-direction:column;justify-content:center;}
+.pw-body h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;
+  line-height:1.3;margin-bottom:.5rem;transition:color .3s;}
+.post-wide:hover .pw-body h3{color:var(--rose);}
+.pw-body p{font-size:.82rem;color:var(--muted);line-height:1.7;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* Newsletter */
+.newsletter{background:linear-gradient(135deg,var(--rose),#E8799A);
+  border-radius:1.5rem;padding:2rem;text-align:center;}
+.newsletter h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;
+  font-weight:700;color:white;margin-bottom:.4rem;}
+.newsletter .nl-desc{font-size:.84rem;color:rgba(255,255,255,.88);
+  margin-bottom:.5rem;line-height:1.6;}
+.newsletter .nl-hint{font-family:'Caveat',cursive;font-size:1rem;
+  color:rgba(255,255,255,.75);margin-bottom:1.2rem;}
+.nl-input{width:100%;padding:.7rem 1.1rem;border-radius:100px;border:none;
+  font-size:.84rem;margin-bottom:.7rem;font-family:'DM Sans',sans-serif;outline:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.nl-btn{width:100%;padding:.75rem;border-radius:100px;background:var(--deep);
+  color:white;font-size:.84rem;font-weight:600;border:none;
+  font-family:'DM Sans',sans-serif;transition:opacity .3s;}
+.nl-btn:hover{opacity:.82;}
+.nl-note{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.6rem;}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(22px);transition:all .65s cubic-bezier(.22,1,.36,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* Hidden post for filter */
+.post-item{transition:opacity .3s,transform .3s;}
+.post-item.hidden{opacity:0;pointer-events:none;height:0;overflow:hidden;margin:0;}
+
+@media(max-width:640px){
+  .post-featured,.posts-row,.post-wide{grid-template-columns:1fr;}
+  .pf-img,.pw-img{min-height:160px;height:160px;}
+  .hero-deco{display:none;}
+}
+</style>
+</head>
+<body>
+
+<script>
+// Petals
+[{l:5,s:14,d:8,dl:0},{l:18,s:18,d:11,dl:2},{l:32,s:12,d:9,dl:4},{l:47,s:20,d:7,dl:1},
+{l:60,s:15,d:12,dl:5},{l:73,s:17,d:8,dl:3},{l:86,s:13,d:10,dl:6},{l:95,s:19,d:9,dl:1.5}]
+.forEach(p=>{const el=document.createElement('div');el.className='petal';
+el.style.cssText=`left:${p.l}%;animation-duration:${p.d}s;animation-delay:-${p.dl}s;`;
+el.innerHTML=`<div style="width:${p.s}px;height:${p.s*.88}px;background:linear-gradient(135deg,#F4A7C0,#FAC8D8);border-radius:50% 0 50% 0;transform:rotate(45deg);opacity:.65;"></div>`;
+document.body.appendChild(el);});
+</script>
+
+<!-- Custom cursor elements -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})"><em>Aarya</em>'s Blog 🌸</div>
+  <a class="nav-back" href="index.html">← Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-deco">🌸</div>
+  <span class="hero-label">// my little corner of the internet</span>
+  <h1 class="hero-title">Thoughts on<br><em>Tech, Life</em><br>& Everything</h1>
+  <p class="hero-sub">From debugging at midnight to snack breaks between lectures — this is where I write it all down.</p>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar reveal">
+  <button class="filter-btn active" onclick="filterPosts('all',this)">✦ All Posts</button>
+  <button class="filter-btn" onclick="filterPosts('tech',this)">💻 Tech</button>
+  <button class="filter-btn" onclick="filterPosts('personal',this)">🌸 Personal</button>
+  <button class="filter-btn" onclick="filterPosts('ai',this)">🤖 AI</button>
+  <button class="filter-btn" onclick="filterPosts('student',this)">🎓 Student Life</button>
+</div>
+
+<div class="blog-grid">
+
+  <!-- Featured Post -->
+  <div class="post-item post-item-student" onclick="openPost('velora')">
+    <div class="post-featured reveal" style="cursor:pointer;">
+      <div class="pf-img">🏆</div>
+      <div class="pf-body">
+        <span class="tag">Student Life</span>
+        <h2>I competed in 3 hackathon events solo — here's what happened</h2>
+        <p>Web-O-Twist, Idea Arena, Auction Wars — all in one day at Event Velora 2026. No team, no backup plan. Just me, my laptop, and way too many snacks. Here's the full story of what went wrong, what went right, and what I'd do differently.</p>
+        <div class="pmeta">
+          <div class="av">A</div>
+          <span>Aarya Shinde</span><span>·</span><span>April 18, 2026</span>
+          <span style="margin-left:.5rem;background:var(--blush);color:var(--rose);font-size:.7rem;padding:.13rem .55rem;border-radius:100px;">7 min read</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two cards -->
+  <div class="posts-row">
+    <div class="post-item post-item-ai" onclick="openPost('claude')">
+      <div class="post-card reveal" style="cursor:pointer;animation-delay:.1s;">
+        <div class="pc-img ai">🤖</div>
+        <div class="pc-body">
+          <span class="tag">AI</span>
+          <h3>What I actually learned using Claude AI to build a real project</h3>
+          <p>I integrated Claude AI into StanFest Hub. Here's what surprised me, what frustrated me, and why AI tools aren't a magic shortcut.</p>
+          <div class="pc-meta">
+            <div class="left"><div class="av-sm">A</div><span>Aarya · March 5, 2026</span></div>
+            <span class="rtime">6 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-item post-item-personal" onclick="openPost('solo')">
+      <div class="post-card reveal" style="cursor:pointer;animation-delay:.2s;">
+        <div class="pc-img life">🌸</div>
+        <div class="pc-body">
+          <span class="tag">Personal</span>
+          <h3>Being the only one who shows up solo — and why I stopped apologizing</h3>
+          <p>Everyone else had teams. I had a laptop, a deadline, and a bag of chips. At first it felt like a disadvantage. Then it became my superpower.</p>
+          <div class="pc-meta">
+            <div class="left"><div class="av-sm">A</div><span>Aarya · Feb 14, 2026</span></div>
+            <span class="rtime">4 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wide card -->
+  <div class="post-item post-item-tech" onclick="openPost('deploy')">
+    <div class="post-wide reveal" style="cursor:pointer;">
+      <div class="pw-img">💻</div>
+      <div class="pw-body">
+        <span class="tag">Tech</span>
+        <h3>How I deployed my first real website — and what no tutorial told me</h3>
+        <p>Firebase, Razorpay, Netlify, Google Search Console — nobody tells you how these pieces actually fit together. Here's everything I figured out the hard way.</p>
+        <div class="pc-meta" style="margin-top:.8rem;">
+          <div class="left"><div class="av-sm">A</div><span>Aarya · Jan 20, 2026</span></div>
+          <span class="rtime">8 min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletter -->
+  <div class="newsletter reveal">
+    <h3>Stay in the loop 🌸</h3>
+    <p class="nl-desc">Get notified when I post something new — tech experiments, AI stuff, student life stories.</p>
+    <p class="nl-hint">✦ like subscribing on YouTube but for my blog ✦</p>
+    <input class="nl-input" type="email" placeholder="your@email.com" id="nl-email">
+    <button class="nl-btn" onclick="handleSubscribe()">Subscribe — it's free 🎀</button>
+    <p class="nl-note">No spam. Unsubscribe anytime. Pinky promise 🌸</p>
+  </div>
+
+</div>
+
+<!-- Post modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(26,10,20,.6);backdrop-filter:blur(8px);padding:2rem;overflow-y:auto;" onclick="closeModal(event)">
+  <div id="modal-box" style="background:var(--cream);max-width:680px;margin:2rem auto;border-radius:2rem;padding:3rem;position:relative;animation:modalIn .4s cubic-bezier(.22,1,.36,1);">
+    <button onclick="document.getElementById('modal').style.display='none'" style="position:absolute;top:1.2rem;right:1.2rem;background:var(--blush);border:none;width:32px;height:32px;border-radius:50%;font-size:1rem;color:var(--rose);font-weight:700;">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- Social Connect Section -->
+<section style="background:white;padding:5rem 2rem;border-top:1px solid var(--gb);">
+  <div style="max-width:700px;margin:0 auto;text-align:center;">
+    <span style="font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:.7rem;">Find Me Online</span>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;margin-bottom:.8rem;">Let's connect <em style="color:var(--rose);">beyond the blog</em></h2>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.8;max-width:420px;margin:0 auto 3rem;">Follow my projects, connect professionally, or just say hi. I'm always around.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem;max-width:620px;margin:0 auto;">
+
+      <!-- Gmail -->
+      <a href="mailto:aaryashinde.s24@gmail.com" style="text-decoration:none;">
+        <div style="background:var(--cream);border:1.5px solid var(--gb);border-radius:1.5rem;padding:1.8rem 1.2rem;text-align:center;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;"
+          onmouseenter="this.style.transform='translateY(-8px) rotate(-1deg)';this.style.boxShadow='0 20px 50px rgba(234,67,53,.18)';this.style.borderColor='#EA4335';"
+          onmouseleave="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--gb)';">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#EA4335,#FBBC04,#34A853,#4285F4);"></div>
+          <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#FEE2E2,#FECACA);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;box-shadow:0 6px 16px rgba(234,67,53,.18);">✉️</div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--deep);margin-bottom:.25rem;">Gmail</div>
+          <div style="font-size:.67rem;color:var(--muted);line-height:1.6;margin-bottom:.9rem;">aaryashinde.s24<br>@gmail.com</div>
+          <div style="font-size:.67rem;font-weight:700;color:#EA4335;letter-spacing:.08em;border-top:1px solid rgba(234,67,53,.12);padding-top:.65rem;">EMAIL ME →</div>
+        </div>
+      </a>
+
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/aarya-shinde-b6231427b" target="_blank" style="text-decoration:none;">
+        <div style="background:var(--cream);border:1.5px solid var(--gb);border-radius:1.5rem;padding:1.8rem 1.2rem;text-align:center;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;"
+          onmouseenter="this.style.transform='translateY(-8px) rotate(1deg)';this.style.boxShadow='0 20px 50px rgba(10,102,194,.18)';this.style.borderColor='#0A66C2';"
+          onmouseleave="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--gb)';">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#0A66C2;"></div>
+          <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#DBEAFE,#BFDBFE);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 6px 16px rgba(10,102,194,.18);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--deep);margin-bottom:.25rem;">LinkedIn</div>
+          <div style="font-size:.67rem;color:var(--muted);line-height:1.6;margin-bottom:.9rem;">Aarya Shinde<br>AI & DS Student</div>
+          <div style="font-size:.67rem;font-weight:700;color:#0A66C2;letter-spacing:.08em;border-top:1px solid rgba(10,102,194,.12);padding-top:.65rem;">CONNECT →</div>
+        </div>
+      </a>
+
+      <!-- GitHub -->
+      <a href="https://github.com/AaryaAI-cyber" target="_blank" style="text-decoration:none;">
+        <div style="background:var(--cream);border:1.5px solid var(--gb);border-radius:1.5rem;padding:1.8rem 1.2rem;text-align:center;transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;"
+          onmouseenter="this.style.transform='translateY(-8px) rotate(-1deg)';this.style.boxShadow='0 20px 50px rgba(26,10,20,.15)';this.style.borderColor='#1A0A14';"
+          onmouseleave="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--gb)';">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1A0A14,var(--rose),var(--sakura));"></div>
+          <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#F3F4F6,#E5E7EB);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 6px 16px rgba(26,10,20,.1);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#1A0A14"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          </div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--deep);margin-bottom:.25rem;">GitHub</div>
+          <div style="font-size:.67rem;color:var(--muted);line-height:1.6;margin-bottom:.9rem;">AaryaAI-cyber<br>See all projects</div>
+          <div style="font-size:.67rem;font-weight:700;color:var(--rose);letter-spacing:.08em;border-top:1px solid var(--gb);padding-top:.65rem;">VIEW CODE →</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<footer style="background:var(--deep);padding:2.5rem 2rem;text-align:center;">
+  <p style="font-family:'Cormorant Garamond',serif;color:var(--sakura);font-size:1.2rem;margin-bottom:.5rem;font-style:italic;">Aarya's Blog ✿</p>
+  <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:.8rem;">
+    <a href="mailto:aaryashinde.s24@gmail.com" style="color:rgba(255,255,255,.4);font-size:.75rem;text-decoration:none;transition:color .3s;" onmouseenter="this.style.color='#F4A7C0'" onmouseleave="this.style.color='rgba(255,255,255,.4)'">✉ Gmail</a>
+    <a href="https://www.linkedin.com/in/aarya-shinde-b6231427b" target="_blank" style="color:rgba(255,255,255,.4);font-size:.75rem;text-decoration:none;transition:color .3s;" onmouseenter="this.style.color='#F4A7C0'" onmouseleave="this.style.color='rgba(255,255,255,.4)'">in LinkedIn</a>
+    <a href="https://github.com/AaryaAI-cyber" target="_blank" style="color:rgba(255,255,255,.4);font-size:.75rem;text-decoration:none;transition:color .3s;" onmouseenter="this.style.color='#F4A7C0'" onmouseleave="this.style.color='rgba(255,255,255,.4)'">⌥ GitHub</a>
+  </div>
+  <p style="color:rgba(255,255,255,.3);font-size:.72rem;">Written with 🌸 from Hyderabad · AI & Data Science Student</p>
+</footer>
+
+<style>
+@keyframes modalIn{from{transform:translateY(30px) scale(.97);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+</style>
+
+<script>
+// ============ SCROLL REVEAL ============
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ============ FILTER ============
+function filterPosts(cat, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.post-item').forEach(item=>{
+    if(cat==='all'||item.classList.contains('post-item-'+cat)){
+      item.classList.remove('hidden');
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+}
+
+// ============ POST MODAL ============
+const posts={
+  velora:{
+    tag:'Student Life',emoji:'🏆',
+    title:'I competed in 3 hackathon events solo — here\'s what happened',
+    date:'April 18, 2026',read:'7 min read',
+    body:`<p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">Event Velora 2026. Three competitions. One person. Zero teammates. No one told me this was going to be the most exhausting and rewarding day of Semester 4.</p>
+    <p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">I entered Web-O-Twist solo, competed against full teams, and somehow walked away with 1st place. Then I pivoted to Idea Arena with the CoolGuard Kit concept I'd built just days before — SolarCool Cap + PCM CoolVest for outdoor workers in extreme heat. And somewhere in between, I participated in Auction Wars as part of a team.</p>
+    <p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">The honest truth? At one point I was debugging CSS with one hand and eating biscuits with the other. No chai breaks for me — just snacks and sheer stubbornness.</p>
+    <p style="line-height:1.9;color:#5A3A47;">What I learned: you don't need a team to show up. You just need to show up.</p>`
+  },
+  claude:{
+    tag:'AI',emoji:'🤖',
+    title:'What I actually learned using Claude AI to build a real project',
+    date:'March 5, 2026',read:'6 min read',
+    body:`<p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">When I integrated Claude AI into StanFest Hub, I thought it would be simple. Spoiler: it wasn't. But what I learned along the way was genuinely useful.</p>
+    <p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">AI tools aren't magic. They're powerful when you give them precise context and weak when you're vague. The more specific my prompts, the better the output. The lazier my prompts, the more I had to debug.</p>
+    <p style="line-height:1.9;color:#5A3A47;">The biggest surprise? Using AI to build something doesn't mean you understand it less. It actually forced me to understand my own project better — because I had to explain it clearly to get useful help.</p>`
+  },
+  solo:{
+    tag:'Personal',emoji:'🌸',
+    title:'Being the only one who shows up solo — and why I stopped apologizing',
+    date:'February 14, 2026',read:'4 min read',
+    body:`<p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">Every time I signed up for a competition alone, someone would ask: "Where's your team?" Like showing up by yourself was something to be embarrassed about.</p>
+    <p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">Here's what I realized: working solo is a skill. You make every decision. You own every mistake. You feel every win completely. There's no hiding behind "we didn't have time" or "someone else was supposed to do that."</p>
+    <p style="line-height:1.9;color:#5A3A47;">I stopped apologizing for it when I won Web-O-Twist against a 3-person team. Solo doesn't mean weak. Solo means every single bit of it was you.</p>`
+  },
+  deploy:{
+    tag:'Tech',emoji:'💻',
+    title:'How I deployed my first real website — and what no tutorial told me',
+    date:'January 20, 2026',read:'8 min read',
+    body:`<p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">Tutorials teach you how to write code. Nobody teaches you what happens after — the Firebase rules, the Netlify config, the Razorpay webhook verification, the Google Search Console verification dance.</p>
+    <p style="line-height:1.9;color:#5A3A47;margin-bottom:1rem;">StanFest Hub was my first project that actually had to work — not just run on localhost. Real users, real payments, real consequences if something broke during the fest.</p>
+    <p style="line-height:1.9;color:#5A3A47;">The most important lesson: deploy early and break things in production before the event, not during it. Everything will go wrong. Plan for it.</p>`
+  }
+};
+function openPost(id){
+  const p=posts[id];
+  document.getElementById('modal-content').innerHTML=`
+    <div style="font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);background:rgba(201,68,112,.1);padding:.2rem .65rem;border-radius:100px;display:inline-block;margin-bottom:1rem;">${p.tag}</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:1rem;">${p.p_emoji||p.emoji} ${p.title}</h2>
+    <div style="display:flex;align-items:center;gap:.6rem;font-size:.78rem;color:var(--muted);margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--gb);">
+      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#F4A7C0,#C94470);display:flex;align-items:center;justify-content:center;color:white;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:.75rem;">A</div>
+      <span>Aarya Shinde</span><span>·</span><span>${p.date}</span><span>·</span>
+      <span style="background:var(--blush);color:var(--rose);padding:.12rem .55rem;border-radius:100px;">${p.read}</span>
+    </div>
+    ${p.body}
+    <div style="margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--gb);font-size:.82rem;color:var(--muted);">
+      🌸 Thanks for reading! More posts coming soon.
+    </div>`;
+  document.getElementById('modal').style.display='block';
+}
+function closeModal(e){if(e.target===document.getElementById('modal'))document.getElementById('modal').style.display='none';}
+
+// ============ SUBSCRIBE ============
+function handleSubscribe(){
+  const email=document.getElementById('nl-email').value;
+  if(!email||!email.includes('@')){
+    alert('Please enter a valid email! 🌸');return;
+  }
+  const btn=document.querySelector('.nl-btn');
+  btn.textContent='✓ You\'re subscribed! 🎉';
+  btn.style.background='#4ADE80';
+  document.getElementById('nl-email').value='';
+  setTimeout(()=>{btn.textContent='Subscribe — it\'s free 🎀';btn.style.background='';},3000);
+}
+
+// ============ EPIC CURSOR ============
+const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+const sparkColors=['#F4A7C0','#C94470','#FAC8D8','#E8799A','#FDE8F0','#D4547A'];
+let sparkTimer=0;
+
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  dot.style.top=my+'px';dot.style.left=mx+'px';
+  // Sparkle trail
+  if(Date.now()-sparkTimer>40){
+    sparkTimer=Date.now();
+    const sp=document.createElement('div');sp.className='spark';
+    const sz=4+Math.random()*6;
+    sp.style.cssText=`top:${my}px;left:${mx}px;width:${sz}px;height:${sz}px;background:${sparkColors[Math.floor(Math.random()*sparkColors.length)]};`;
+    document.body.appendChild(sp);
+    setTimeout(()=>sp.remove(),650);
+  }
+});
+
+(function loop(){
+  rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  ring.style.top=ry+'px';ring.style.left=rx+'px';
+  requestAnimationFrame(loop);
+})();
+
+// Hover effects
+document.querySelectorAll('button,[onclick],.post-card,.post-featured,.post-wide,.nav-back').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    ring.style.width='52px';ring.style.height='52px';
+    ring.style.borderColor='rgba(201,68,112,.8)';
+    dot.style.width='18px';dot.style.height='18px';
+    dot.style.background='var(--sakura)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    ring.style.width='36px';ring.style.height='36px';
+    ring.style.borderColor='rgba(201,68,112,.5)';
+    dot.style.width='12px';dot.style.height='12px';
+    dot.style.background='var(--rose)';
+  });
+});
+
+// Click burst
+const clickEmojis=['🌸','✨','💫','🎀','⭐','🌺','💖','🌟'];
+document.addEventListener('click',e=>{
+  const x=e.clientX,y=e.clientY;
+  // Double ring
+  ['click-ring','click-ring2'].forEach(cls=>{
+    const r=document.createElement('div');r.className=cls;
+    r.style.top=y+'px';r.style.left=x+'px';
+    document.body.appendChild(r);setTimeout(()=>r.remove(),900);
+  });
+  // Petal burst
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');p.className='explode';
+    const sz=5+Math.random()*9,a=(360/8)*i+Math.random()*15,d=32+Math.random()*40;
+    p.style.cssText=`top:${y}px;left:${x}px;width:${sz}px;height:${sz*.88}px;
+      border-radius:50% 0 50% 0;background:${sparkColors[i%sparkColors.length]};
+      --a:${a}deg;--d:-${d}px;transform-origin:center;`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),750);
+  }
+  // Random emojis flying out
+  const count=3+Math.floor(Math.random()*3);
+  for(let i=0;i<count;i++){
+    const em=document.createElement('div');em.className='emoji-pop';
+    const ex=(Math.random()-.5)*120,ey=-(30+Math.random()*60);
+    em.style.cssText=`top:${y}px;left:${x}px;--ex:${ex}px;--ey:${ey}px;--ex2:${ex+(Math.random()-.5)*40}px;--ey2:${ey-20}px;animation-delay:${i*.06}s;`;
+    em.textContent=clickEmojis[Math.floor(Math.random()*clickEmojis.length)];
+    document.body.appendChild(em);setTimeout(()=>em.remove(),900);
+  }
+});
+</script>
+</body>
+</html>
