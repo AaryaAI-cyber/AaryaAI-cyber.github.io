@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kodbud — Join Our Team</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --cream:  #FDF6F0;
+      --rose:   #D4547A;
+      --rose-light: #E8849F;
+      --petal:  #F9D5E2;
+      --bark:   #7A3B50;
+      --mist:   #F2E8EF;
+      --ink:    #2C1A22;
+      --green:  #5E9A78;
+    }
+
+    * { cursor: none; box-sizing: border-box; }
+
+    /* ── CURSOR ── */
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--rose);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s ease, background 0.2s;
+      mix-blend-mode: multiply;
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--rose);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, opacity 0.2s;
+      opacity: 0.5;
+    }
+    a:hover ~ #cursor, button:hover ~ #cursor { transform: translate(-50%, -50%) scale(2); }
+
+    /* ── PETAL CANVAS ── */
+    #petal-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* ── AMBIENT PETALS (background) ── */
+    .ambient-petal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      font-size: 1.4rem;
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+      10%  { opacity: 0.35; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ── BODY ── */
+    body {
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      position: relative;
+      background: linear-gradient(135deg, #F9D5E2 0%, #FDF6F0 60%, #F2E8EF 100%);
+      border-bottom: 1px solid var(--petal);
+      padding: 3.5rem 2rem 2.5rem;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 40%, rgba(212,84,122,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--rose); margin-bottom: 0.75rem;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 300; line-height: 1.1;
+      color: var(--ink); margin-bottom: 0.5rem;
+    }
+    .hero-title em { color: var(--rose); font-style: italic; }
+    .hero-sub {
+      font-size: 0.85rem; color: #9A6878; font-weight: 300;
+      max-width: 400px; margin: 0 auto;
+    }
+
+    /* ── CARD ── */
+    .form-card {
+      max-width: 620px; margin: 2.5rem auto 4rem;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 40px rgba(212,84,122,0.08), 0 1px 6px rgba(212,84,122,0.06);
+      overflow: hidden;
+      position: relative; z-index: 1;
+    }
+    .card-accent {
+      height: 4px;
+      background: linear-gradient(90deg, var(--rose), var(--rose-light), #F9D5E2);
+    }
+    .card-body { padding: 2.4rem 2.8rem 2.8rem; }
+
+    /* ── FIELD GROUP ── */
+    .field-group { position: relative; margin-bottom: 1.5rem; }
+    label {
+      display: block; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #9A6878; margin-bottom: 0.45rem;
+    }
+    .field-wrap { position: relative; }
+    input, select, textarea {
+      width: 100%; padding: 0.78rem 2.6rem 0.78rem 1rem;
+      border: 1.5px solid #EDD9E4;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      color: var(--ink);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    textarea { resize: vertical; min-height: 110px; padding-right: 1rem; }
+    select { appearance: none; -webkit-appearance: none; padding-right: 2.6rem; }
+    .select-arrow {
+      position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+      color: var(--rose); pointer-events: none; font-size: 0.75rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 3px rgba(212,84,122,0.1);
+      background: #fff;
+    }
+
+    /* ── VALID / INVALID STATES ── */
+    input.valid, select.valid, textarea.valid {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(94,154,120,0.1);
+    }
+    input.invalid, select.invalid, textarea.invalid {
+      border-color: #E05A5A;
+      box-shadow: 0 0 0 3px rgba(224,90,90,0.08);
+    }
+    .status-icon {
+      position: absolute; right: 0.85rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .status-icon.hidden { opacity: 0; }
+    textarea + .status-icon { top: 1.1rem; transform: none; }
+
+    .error-msg {
+      font-size: 0.72rem; color: #C0392B; margin-top: 0.35rem;
+      min-height: 1rem; letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 0.3rem;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .error-msg.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── GRID ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 540px) { 
+      .two-col { grid-template-columns: 1fr; } 
+      .card-body { padding: 1.8rem 1.4rem; }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none; border-top: 1px solid #EDD9E4;
+      margin: 0.5rem 0 1.5rem;
+    }
+    .section-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 600; color: var(--rose);
+      margin-bottom: 1rem; letter-spacing: 0.04em;
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      width: 100%; padding: 0.9rem;
+      background: linear-gradient(135deg, var(--rose), var(--bark));
+      color: #fff; border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: none; position: relative; overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212,84,122,0.35);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      border-radius: inherit;
+    }
+
+    /* ── SUCCESS BANNER ── */
+    #success-banner {
+      display: none;
+      background: linear-gradient(135deg, #d4edda, #e8f5e9);
+      border: 1.5px solid #5E9A78;
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    #success-banner .s-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    #success-banner h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600; color: #2E7D52; margin-bottom: 0.3rem;
+    }
+    #success-banner p { font-size: 0.82rem; color: #4A7A60; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; font-size: 0.72rem; color: #C8A4B4;
+      padding-bottom: 2.5rem; position: relative; z-index: 1;
+    }
+    footer span { color: var(--rose); }
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- PETAL CLICK CANVAS -->
+<canvas id="petal-canvas"></canvas>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-eyebrow">Kodbud · Career Portal</p>
+  <h1 class="hero-title">Grow with us.<br><em>Blossom here.</em></h1>
+  <p class="hero-sub">We're a small team building big things. Tell us who you are — we read every application.</p>
+</header>
+
+<!-- FORM CARD -->
+<main class="px-4">
+  <div class="form-card">
+    <div class="card-accent"></div>
+    <div class="card-body">
+
+      <form id="appForm" novalidate>
+
+        <!-- PERSONAL INFO -->
+        <p class="section-label">Personal Info</p>
+        <div class="two-col">
+
+          <!-- NAME -->
+          <div class="field-group">
+            <label for="name">Full Name</label>
+            <div class="field-wrap">
+              <input type="text" id="name" placeholder="Aarya Shinde" autocomplete="name"/>
+              <span class="status-icon hidden" id="name-icon"></span>
+            </div>
+            <div class="error-msg" id="name-error">⚠ Name cannot be empty.</div>
+          </div>
+
+          <!-- PHONE -->
+          <div class="field-group">
+            <label for="phone">Phone Number</label>
+            <div class="field-wrap">
+              <input type="tel" id="phone" placeholder="10-digit number" maxlength="10"/>
+              <span class="status-icon hidden" id="phone-icon"></span>
+            </div>
+            <div class="error-msg" id="phone-error">⚠ Enter a valid 10-digit number.</div>
+          </div>
+
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field-group">
+          <label for="email">Email Address</label>
+          <div class="field-wrap">
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+            <span class="status-icon hidden" id="email-icon"></span>
+          </div>
+          <div class="error-msg" id="email-error">⚠ Enter a valid email address.</div>
+        </div>
+
+        <hr class="divider"/>
+
+        <!-- ROLE & MESSAGE -->
+        <p class="section-label">Application Details</p>
+
+        <!-- JOB ROLE -->
+        <div class="field-group">
+          <label for="role">Role You're Applying For</label>
+          <div class="field-wrap">
+            <select id="role">
+              <option value="">— Select a role —</option>
+              <option>Frontend Developer</option>
+              <option>Backend Developer</option>
+              <option>Full-Stack Developer</option>
+              <option>UI/UX Designer</option>
+              <option>Data Scientist</option>
+              <option>AI / ML Engineer</option>
+              <option>DevOps Engineer</option>
+              <option>Product Manager</option>
+              <option>Content Writer</option>
+            </select>
+            <span class="select-arrow">▾</span>
+            <span class="status-icon hidden" id="role-icon" style="right:2.2rem"></span>
+          </div>
+          <div class="error-msg" id="role-error">⚠ Please select a role.</div>
+        </div>
+
+        <!-- MESSAGE -->
+        <div class="field-group">
+          <label for="message">Why do you want to join Kodbud?</label>
+          <div class="field-wrap" style="position:relative">
+            <textarea id="message" placeholder="Share your motivation, past experience, or anything that helps us know you better…"></textarea>
+            <span class="status-icon hidden" id="message-icon"></span>
+          </div>
+          <div class="error-msg" id="message-error">⚠ Please tell us something about yourself.</div>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Application →</button>
+
+      </form>
+
+      <!-- SUCCESS -->
+      <div id="success-banner">
+        <div class="s-icon">🌸</div>
+        <h3>Application Received!</h3>
+        <p>Thanks for applying to Kodbud. We'll review your details and reach out within 5–7 days.</p>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>Made with <span>♥</span> for Kodbud Web Dev Internship · Task 4</footer>
+
+<script>
+  /* ─────────────── CURSOR ─────────────── */
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+
+  let mx = -100, my = -100, rx = -100, ry = -100;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function animCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top  = ry + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  /* hover: scale ring on interactive elements */
+  document.querySelectorAll('input,select,textarea,button,a,label').forEach(el => {
+    el.addEventListener('mouseenter', () => cursorRing.style.transform = 'translate(-50%,-50%) scale(1.8)');
+    el.addEventListener('mouseleave', () => cursorRing.style.transform = 'translate(-50%,-50%) scale(1)');
+  });
+
+  /* ─────────────── PETAL CLICK EFFECT ─────────────── */
+  const canvas = document.getElementById('petal-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const petals = [];
+  const PETAL_SHAPES = ['🌸','🌺','✿','❀'];
+
+  function spawnPetals(x, y, count = 10) {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      const speed = 2.5 + Math.random() * 3.5;
+      petals.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2,
+        gravity: 0.18 + Math.random() * 0.1,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 8,
+        size: 12 + Math.random() * 10,
+        opacity: 1,
+        shape: PETAL_SHAPES[Math.floor(Math.random() * PETAL_SHAPES.length)]
+      });
+    }
+  }
+
+  document.addEventListener('click', e => spawnPetals(e.clientX, e.clientY));
+
+  function animPetals() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = petals.length - 1; i >= 0; i--) {
+      const p = petals[i];
+      p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
+      p.vx *= 0.98; p.rotation += p.rotSpeed; p.opacity -= 0.022;
+      if (p.opacity <= 0) { petals.splice(i, 1); continue; }
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.font = p.size + 'px serif';
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillText(p.shape, -p.size / 2, p.size / 2);
+      ctx.restore();
+    }
+    requestAnimationFrame(animPetals);
+  }
+  animPetals();
+
+  /* ─────────────── AMBIENT DRIFTING PETALS ─────────────── */
+  const body = document.body;
+  function createAmbientPetal() {
+    const el  = document.createElement('div');
+    el.className = 'ambient-petal';
+    el.textContent = PETAL_SHAPES[Math.floor(Math.random() * PETAL_SHAPES.length)];
+    el.style.left     = Math.random() * 100 + 'vw';
+    el.style.top      = '-40px';
+    el.style.fontSize = (14 + Math.random() * 14) + 'px';
+    const dur = 8 + Math.random() * 10;
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay   = Math.random() * dur + 's';
+    body.appendChild(el);
+    setTimeout(() => el.remove(), (dur + 4) * 1000);
+  }
+  setInterval(createAmbientPetal, 1200);
+  for (let i = 0; i < 6; i++) createAmbientPetal();
+
+  /* ─────────────── VALIDATION HELPERS ─────────────── */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PHONE_RE = /^\d{10}$/;
+
+  function setValid(id) {
+    const el   = document.getElementById(id);
+    const icon = document.getElementById(id + '-icon');
+    const err  = document.getElementById(id + '-error');
+    el.classList.remove('invalid'); el.classList.add('valid');
+    icon.textContent = '✔'; icon.style.color = 'var(--green)'; icon.classList.remove('hidden');
+    err.classList.remove('visible');
+  }
+
+  function setInvalid(id, msg) {
+    const el   = document.getElementById(id);
+    const icon = document.getElementById(id + '-icon');
+    const err  = document.getElementById(id + '-error');
+    el.classList.remove('valid'); el.classList.add('invalid');
+    icon.textContent = '✕'; icon.style.color = '#C0392B'; icon.classList.remove('hidden');
+    err.textContent  = '⚠ ' + msg;
+    err.classList.add('visible');
+  }
+
+  function clearState(id) {
+    const el   = document.getElementById(id);
+    const icon = document.getElementById(id + '-icon');
+    const err  = document.getElementById(id + '-error');
+    el.classList.remove('valid','invalid');
+    icon.classList.add('hidden');
+    err.classList.remove('visible');
+  }
+
+  /* ─────────────── LIVE VALIDATION ─────────────── */
+  function validateName() {
+    const v = document.getElementById('name').value.trim();
+    if (!v)          { setInvalid('name', 'Name cannot be empty.'); return false; }
+    if (v.length < 2){ setInvalid('name', 'Name is too short.'); return false; }
+    setValid('name'); return true;
+  }
+  function validateEmail() {
+    const v = document.getElementById('email').value.trim();
+    if (!v)              { setInvalid('email', 'Email cannot be empty.'); return false; }
+    if (!EMAIL_RE.test(v)){ setInvalid('email', 'Enter a valid email (e.g. you@domain.com).'); return false; }
+    setValid('email'); return true;
+  }
+  function validatePhone() {
+    const v = document.getElementById('phone').value.trim();
+    if (!v)              { setInvalid('phone', 'Phone cannot be empty.'); return false; }
+    if (!PHONE_RE.test(v)){ setInvalid('phone', 'Must be exactly 10 digits, no spaces.'); return false; }
+    setValid('phone'); return true;
+  }
+  function validateRole() {
+    const v = document.getElementById('role').value;
+    if (!v){ setInvalid('role', 'Please select a role.'); return false; }
+    setValid('role'); return true;
+  }
+  function validateMessage() {
+    const v = document.getElementById('message').value.trim();
+    if (!v)           { setInvalid('message', 'Please write something.'); return false; }
+    if (v.length < 20){ setInvalid('message', 'Tell us a bit more (at least 20 characters).'); return false; }
+    setValid('message'); return true;
+  }
+
+  /* Attach live listeners (validate on blur, clear on focus) */
+  const fields = [
+    { id: 'name',    fn: validateName    },
+    { id: 'email',   fn: validateEmail   },
+    { id: 'phone',   fn: validatePhone   },
+    { id: 'role',    fn: validateRole    },
+    { id: 'message', fn: validateMessage },
+  ];
+  fields.forEach(({ id, fn }) => {
+    const el = document.getElementById(id);
+    el.addEventListener('blur',   fn);
+    el.addEventListener('input',  () => { if (el.classList.contains('invalid') || el.classList.contains('valid')) fn(); });
+    el.addEventListener('focus',  () => { if (!el.value) clearState(id); });
+  });
+
+  /* phone: digits only */
+  document.getElementById('phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  /* ─────────────── SUBMIT ─────────────── */
+  document.getElementById('appForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    try {
+      const results   = fields.map(({ fn }) => fn());
+      const allValid  = results.every(Boolean);
+
+      if (!allValid) {
+        /* scroll to first invalid field */
+        const firstBad = document.querySelector('.invalid');
+        if (firstBad) {
+          firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstBad.style.animation = 'shake 0.3s ease';
+          firstBad.addEventListener('animationend', () => firstBad.style.animation = '', { once: true });
+          setTimeout(() => firstBad.focus(), 350);
+        }
+
+        /* error banner — use a different variable name to avoid any shadowing */
+        let errBanner = document.getElementById('form-error-banner');
+        if (!errBanner) {
+          errBanner = document.createElement('div');
+          errBanner.id = 'form-error-banner';
+          errBanner.style.cssText = [
+            'background:#FFF0F0','border:1.5px solid #E05A5A','border-radius:10px',
+            'padding:0.75rem 1rem','font-size:0.78rem','color:#C0392B',
+            'margin-bottom:1.2rem','display:flex','align-items:center','gap:0.5rem'
+          ].join(';');
+          document.getElementById('appForm').prepend(errBanner);
+        }
+        const badCount = results.filter(r => !r).length;
+        errBanner.innerHTML = '⚠ <strong>' + badCount + ' field' + (badCount > 1 ? 's' : '') +
+          ' need' + (badCount === 1 ? 's' : '') + ' your attention</strong> — fix the highlighted fields above.';
+        errBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      /* remove error banner if present */
+      const oldBanner = document.getElementById('form-error-banner');
+      if (oldBanner) oldBanner.remove();
+
+      /* show success */
+      const successEl = document.getElementById('success-banner');
+      document.getElementById('appForm').style.display = 'none';
+      successEl.style.display = 'block';
+      successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      spawnPetals(window.innerWidth / 2, window.innerHeight / 2, 25);
+      setTimeout(() => spawnPetals(window.innerWidth / 2, window.innerHeight / 2, 20), 400);
+      setTimeout(() => spawnPetals(window.innerWidth / 2, window.innerHeight / 2, 15), 800);
+
+    } catch(err) {
+      console.error('Submit error:', err);
+    }
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity:0; transform: translateY(-6px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+</style>
+
+</body>
+</html>
