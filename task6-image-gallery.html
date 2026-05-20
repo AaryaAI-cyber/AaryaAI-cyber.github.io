@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sakura Gallery — Kodbud Task 6</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:#FDF6F0;font-family:'DM Sans',sans-serif;cursor:none;overflow-x:hidden}
+    #cursor{position:fixed;width:32px;height:32px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .12s ease}
+    #cdot{position:fixed;width:6px;height:6px;background:#D4547A;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+    .sakura-petal{position:fixed;pointer-events:none;z-index:9998;animation:pf .9s ease-out forwards;user-select:none}
+    @keyframes pf{0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.15)}}
+    .sakura-bg{background:linear-gradient(135deg,#FAE8EF 0%,#FDF6F0 60%,#F9EEF4 100%)}
+    .petals-row{display:flex;justify-content:center;gap:8px;font-size:22px;opacity:.55}
+    .filter-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 24px;border-radius:999px;border:1.5px solid #D4547A;background:transparent;color:#D4547A;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:none;transition:all .25s ease}
+    .filter-btn:hover{background:#FAE8EF;transform:translateY(-2px);box-shadow:0 4px 16px #D4547A20}
+    .filter-btn.active{background:#D4547A;color:#fff;box-shadow:0 4px 20px #D4547A44}
+    .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    @media(max-width:640px){.gallery-grid{grid-template-columns:1fr;gap:14px}}
+    @media(min-width:641px) and (max-width:1023px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+    .gallery-card{position:relative;overflow:hidden;border-radius:16px;box-shadow:0 2px 16px #D4547A18;cursor:none;transition:box-shadow .3s ease,transform .35s ease}
+    .gallery-card:hover{box-shadow:0 14px 44px #D4547A30;transform:translateY(-7px)}
+    .card-art{width:100%;height:260px;display:block;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
+    .gallery-card:hover .card-art{transform:scale(1.08)}
+    .card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(160,40,80,.84) 0%,transparent 55%);opacity:0;transition:opacity .35s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:18px}
+    .gallery-card:hover .card-overlay{opacity:1}
+    .card-title{color:#fff;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;letter-spacing:.04em;transform:translateY(10px);transition:transform .35s ease}
+    .card-cat-label{color:#FFD6E3;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;margin-top:4px;transform:translateY(10px);transition:transform .35s ease .04s}
+    .gallery-card:hover .card-title,.gallery-card:hover .card-cat-label{transform:translateY(0)}
+    .zoom-icon{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.7);transition:opacity .3s,transform .3s}
+    .gallery-card:hover .zoom-icon{opacity:1;transform:scale(1)}
+    .gallery-card.hidden{display:none}
+    #lightbox{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+    #lightbox.open{opacity:1;pointer-events:all}
+    #lb-backdrop{position:absolute;inset:0;background:rgba(25,5,15,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    #lb-box{position:relative;z-index:2;max-width:min(88vw,860px);width:100%;background:#FDF6F0;border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.55);transform:scale(.9);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+    #lightbox.open #lb-box{transform:scale(1)}
+    #lb-art-wrap{width:100%;height:clamp(260px,50vh,520px);overflow:hidden}
+    #lb-art-wrap svg{width:100%;height:100%;display:block;transition:opacity .2s ease}
+    #lb-meta{padding:16px 22px 20px;display:flex;align-items:center;justify-content:space-between}
+    #lb-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:#2a0d1a;font-weight:400}
+    #lb-cat{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#D4547A;margin-top:3px}
+    #lb-counter{font-size:12px;color:#B03D5F;font-weight:500;letter-spacing:.06em}
+    .lb-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);border:none;cursor:none;display:flex;align-items:center;justify-content:center;font-size:17px;color:#D4547A;z-index:3;box-shadow:0 2px 12px #00000020;transition:background .2s,transform .2s,color .2s}
+    .lb-close:hover{background:#D4547A;color:#fff;transform:rotate(90deg)}
+    .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(253,246,240,.92);border:1.5px solid #D4547A44;cursor:none;display:flex;align-items:center;justify-content:center;font-size:22px;color:#D4547A;z-index:3;transition:background .2s,transform .25s,box-shadow .2s;box-shadow:0 2px 14px #D4547A20}
+    .lb-nav:hover{background:#D4547A;color:#fff;transform:translateY(-50%) scale(1.1);box-shadow:0 6px 22px #D4547A44}
+    #lb-prev{left:-58px} #lb-next{right:-58px}
+    @media(max-width:700px){#lb-prev{left:8px;top:auto;bottom:72px;transform:none}#lb-next{right:8px;top:auto;bottom:72px;transform:none}.lb-nav:hover{transform:scale(1.1)}}
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .5s ease,transform .5s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    footer{border-top:1px solid #F2BACB44;margin-top:60px}
+  </style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor">
+  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="16" cy="8" rx="5.5" ry="9" fill="#F2BACB" opacity=".9" transform="rotate(0 16 16)"/>
+    <ellipse cx="16" cy="8" rx="5.5" ry="9" fill="#D4547A" opacity=".8" transform="rotate(72 16 16)"/>
+    <ellipse cx="16" cy="8" rx="5.5" ry="9" fill="#F2BACB" opacity=".75" transform="rotate(144 16 16)"/>
+    <ellipse cx="16" cy="8" rx="5.5" ry="9" fill="#D4547A" opacity=".7" transform="rotate(216 16 16)"/>
+    <ellipse cx="16" cy="8" rx="5.5" ry="9" fill="#FAE8EF" opacity=".85" transform="rotate(288 16 16)"/>
+    <circle cx="16" cy="16" r="3.5" fill="#D4547A"/>
+  </svg>
+</div>
+<div id="cdot"></div>
+
+<!-- Header -->
+<header class="sakura-bg" style="padding:56px 24px;text-align:center">
+  <div class="petals-row" style="margin-bottom:16px">🌸 🌸 🌸 🌸 🌸</div>
+  <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,6vw,4.2rem);color:#D4547A;font-weight:300;font-style:italic;letter-spacing:.03em">Sakura Gallery</h1>
+  <p style="margin-top:10px;font-size:11px;color:#D4547A;opacity:.65;letter-spacing:.24em;text-transform:uppercase">Kodbud Internship · Task 6</p>
+  <p style="margin-top:14px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:#7a4055;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.65">A curated visual journey through nature, architecture &amp; portraits</p>
+  <div class="petals-row" style="margin-top:18px">🌸 🌸 🌸 🌸 🌸</div>
+</header>
+
+<!-- Filters -->
+<section style="padding:28px 16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+  <button class="filter-btn active" data-cat="all">✦ All</button>
+  <button class="filter-btn" data-cat="nature">🌿 Nature</button>
+  <button class="filter-btn" data-cat="architecture">🏯 Architecture</button>
+  <button class="filter-btn" data-cat="portrait">🎭 Portrait</button>
+</section>
+
+<!-- Gallery -->
+<main style="max-width:1100px;margin:0 auto;padding:0 20px 64px">
+  <div class="gallery-grid" id="gallery">
+
+    <!-- ═══ NATURE 1 — Cherry Blossoms ═══ -->
+    <div class="gallery-card reveal" data-cat="nature" data-index="0" data-title="Cherry Blossoms" data-caption="Nature">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FECDD3"/><stop offset="100%" stop-color="#FFF1F2"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky1)"/>
+        <!-- Sun -->
+        <circle cx="300" cy="60" r="36" fill="#FFE4E6" opacity=".7"/>
+        <circle cx="300" cy="60" r="24" fill="#FECACA" opacity=".6"/>
+        <!-- Ground -->
+        <ellipse cx="200" cy="270" rx="220" ry="40" fill="#F9A8D4" opacity=".3"/>
+        <!-- Trunk -->
+        <rect x="188" y="130" width="24" height="130" rx="8" fill="#92400E" opacity=".7"/>
+        <rect x="194" y="100" width="12" height="80" rx="6" fill="#78350F" opacity=".6"/>
+        <!-- Branches -->
+        <line x1="200" y1="145" x2="120" y2="95" stroke="#92400E" stroke-width="8" stroke-linecap="round" opacity=".7"/>
+        <line x1="200" y1="135" x2="290" y2="85" stroke="#92400E" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+        <line x1="120" y1="95" x2="80" y2="60" stroke="#92400E" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+        <line x1="120" y1="95" x2="140" y2="55" stroke="#92400E" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+        <line x1="290" y1="85" x2="330" y2="50" stroke="#92400E" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+        <line x1="290" y1="85" x2="265" y2="48" stroke="#92400E" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+        <line x1="200" y1="155" x2="155" y2="130" stroke="#92400E" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+        <line x1="200" y1="155" x2="248" y2="128" stroke="#92400E" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+        <!-- Blossom clusters -->
+        <circle cx="80" cy="55" r="22" fill="#FBCFE8" opacity=".85"/>
+        <circle cx="100" cy="42" r="18" fill="#F9A8D4" opacity=".8"/>
+        <circle cx="65" cy="40" r="16" fill="#FBCFE8" opacity=".75"/>
+        <circle cx="140" cy="48" r="20" fill="#F9A8D4" opacity=".82"/>
+        <circle cx="158" cy="35" r="15" fill="#FBCFE8" opacity=".78"/>
+        <circle cx="127" cy="32" r="17" fill="#FCE7F3" opacity=".8"/>
+        <circle cx="265" cy="42" r="22" fill="#FBCFE8" opacity=".85"/>
+        <circle cx="285" cy="30" r="18" fill="#F9A8D4" opacity=".8"/>
+        <circle cx="248" cy="30" r="15" fill="#FCE7F3" opacity=".78"/>
+        <circle cx="330" cy="44" r="20" fill="#FBCFE8" opacity=".82"/>
+        <circle cx="348" cy="30" r="17" fill="#F9A8D4" opacity=".78"/>
+        <circle cx="155" cy="125" r="18" fill="#FBCFE8" opacity=".78"/>
+        <circle cx="248" cy="123" r="18" fill="#F9A8D4" opacity=".78"/>
+        <!-- Falling petals -->
+        <ellipse cx="55" cy="160" rx="6" ry="9" fill="#FBCFE8" opacity=".7" transform="rotate(-30 55 160)"/>
+        <ellipse cx="170" cy="190" rx="5" ry="8" fill="#F9A8D4" opacity=".65" transform="rotate(20 170 190)"/>
+        <ellipse cx="310" cy="150" rx="5" ry="8" fill="#FBCFE8" opacity=".65" transform="rotate(-45 310 150)"/>
+        <ellipse cx="360" cy="200" rx="6" ry="9" fill="#F9A8D4" opacity=".6" transform="rotate(15 360 200)"/>
+        <ellipse cx="230" cy="220" rx="5" ry="7" fill="#FBCFE8" opacity=".6" transform="rotate(-60 230 220)"/>
+        <ellipse cx="90" cy="210" rx="5" ry="8" fill="#FCE7F3" opacity=".6" transform="rotate(40 90 210)"/>
+        <!-- Small blossom details -->
+        <circle cx="80" cy="55" r="4" fill="#FB7185" opacity=".5"/>
+        <circle cx="140" cy="48" r="3.5" fill="#FB7185" opacity=".5"/>
+        <circle cx="265" cy="42" r="4" fill="#FB7185" opacity=".5"/>
+        <circle cx="330" cy="44" r="3.5" fill="#FB7185" opacity=".5"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Nature</div>
+        <div class="card-title">Cherry Blossoms</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ NATURE 2 — Pink Petals ═══ -->
+    <div class="gallery-card reveal" data-cat="nature" data-index="1" data-title="Pink Petals" data-caption="Nature">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="petal-bg" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#FCE7F3"/><stop offset="100%" stop-color="#F9A8D4"/></radialGradient>
+          <radialGradient id="center" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#F59E0B"/></radialGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#petal-bg)"/>
+        <!-- Background petals -->
+        <ellipse cx="200" cy="130" rx="55" ry="95" fill="#F9A8D4" opacity=".4" transform="rotate(0 200 130)"/>
+        <ellipse cx="200" cy="130" rx="55" ry="95" fill="#FBCFE8" opacity=".4" transform="rotate(45 200 130)"/>
+        <ellipse cx="200" cy="130" rx="55" ry="95" fill="#F9A8D4" opacity=".4" transform="rotate(90 200 130)"/>
+        <ellipse cx="200" cy="130" rx="55" ry="95" fill="#FBCFE8" opacity=".4" transform="rotate(135 200 130)"/>
+        <!-- Main petals -->
+        <ellipse cx="200" cy="60" rx="38" ry="72" fill="#FBCFE8" opacity=".9" transform="rotate(0 200 130)"/>
+        <ellipse cx="200" cy="60" rx="38" ry="72" fill="#F9A8D4" opacity=".88" transform="rotate(72 200 130)"/>
+        <ellipse cx="200" cy="60" rx="38" ry="72" fill="#FBCFE8" opacity=".86" transform="rotate(144 200 130)"/>
+        <ellipse cx="200" cy="60" rx="38" ry="72" fill="#F9A8D4" opacity=".88" transform="rotate(216 200 130)"/>
+        <ellipse cx="200" cy="60" rx="38" ry="72" fill="#FBCFE8" opacity=".9" transform="rotate(288 200 130)"/>
+        <!-- Petal veins -->
+        <line x1="200" y1="130" x2="200" y2="15" stroke="#F472B6" stroke-width="1" opacity=".3" transform="rotate(0 200 130)"/>
+        <line x1="200" y1="130" x2="200" y2="15" stroke="#F472B6" stroke-width="1" opacity=".3" transform="rotate(72 200 130)"/>
+        <line x1="200" y1="130" x2="200" y2="15" stroke="#F472B6" stroke-width="1" opacity=".3" transform="rotate(144 200 130)"/>
+        <line x1="200" y1="130" x2="200" y2="15" stroke="#F472B6" stroke-width="1" opacity=".3" transform="rotate(216 200 130)"/>
+        <line x1="200" y1="130" x2="200" y2="15" stroke="#F472B6" stroke-width="1" opacity=".3" transform="rotate(288 200 130)"/>
+        <!-- Center -->
+        <circle cx="200" cy="130" r="28" fill="url(#center)" opacity=".95"/>
+        <circle cx="200" cy="130" r="20" fill="#FBBF24" opacity=".8"/>
+        <circle cx="200" cy="130" r="12" fill="#F59E0B"/>
+        <!-- Stamens -->
+        <circle cx="200" cy="110" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="216" cy="118" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="218" cy="136" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="207" cy="148" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="193" cy="148" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="182" cy="136" r="3" fill="#FCD34D" opacity=".8"/>
+        <circle cx="184" cy="118" r="3" fill="#FCD34D" opacity=".8"/>
+        <!-- Corner petals falling -->
+        <ellipse cx="30" cy="30" rx="18" ry="28" fill="#FBCFE8" opacity=".65" transform="rotate(30 30 30)"/>
+        <ellipse cx="370" cy="240" rx="18" ry="28" fill="#F9A8D4" opacity=".6" transform="rotate(-20 370 240)"/>
+        <ellipse cx="360" cy="20" rx="14" ry="22" fill="#FBCFE8" opacity=".55" transform="rotate(50 360 20)"/>
+        <ellipse cx="40" cy="230" rx="14" ry="22" fill="#F9A8D4" opacity=".55" transform="rotate(-40 40 230)"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Nature</div>
+        <div class="card-title">Pink Petals</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ NATURE 3 — Forest Bloom ═══ -->
+    <div class="gallery-card reveal" data-cat="nature" data-index="2" data-title="Forest Bloom" data-caption="Nature">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#BAE6FD"/><stop offset="60%" stop-color="#E0F2FE"/><stop offset="100%" stop-color="#FDF6F0"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky3)"/>
+        <!-- Mountains / hills -->
+        <ellipse cx="100" cy="240" rx="160" ry="80" fill="#86EFAC" opacity=".5"/>
+        <ellipse cx="320" cy="250" rx="140" ry="70" fill="#6EE7B7" opacity=".45"/>
+        <ellipse cx="200" cy="260" rx="220" ry="60" fill="#4ADE80" opacity=".4"/>
+        <!-- Ground -->
+        <rect x="0" y="210" width="400" height="50" fill="#86EFAC" opacity=".6" rx="0"/>
+        <!-- Trees — back layer -->
+        <polygon points="70,160 90,100 110,160" fill="#15803D" opacity=".5"/>
+        <polygon points="80,170 100,95 120,170" fill="#166534" opacity=".5"/>
+        <polygon points="280,160 300,100 320,160" fill="#15803D" opacity=".5"/>
+        <polygon points="310,165 330,98 350,165" fill="#166534" opacity=".5"/>
+        <!-- Trees — front layer -->
+        <polygon points="30,210 58,130 86,210" fill="#16A34A" opacity=".9"/>
+        <polygon points="55,210 85,120 115,210" fill="#15803D" opacity=".85"/>
+        <polygon points="150,210 178,125 206,210" fill="#16A34A" opacity=".9"/>
+        <polygon points="210,210 240,115 270,210" fill="#14532D" opacity=".85"/>
+        <polygon points="290,210 322,128 354,210" fill="#16A34A" opacity=".9"/>
+        <polygon points="330,210 358,135 386,210" fill="#15803D" opacity=".85"/>
+        <!-- Trunks -->
+        <rect x="55" y="195" width="8" height="20" fill="#78350F" opacity=".7" rx="2"/>
+        <rect x="82" y="195" width="8" height="20" fill="#78350F" opacity=".7" rx="2"/>
+        <rect x="176" y="195" width="8" height="20" fill="#78350F" opacity=".7" rx="2"/>
+        <rect x="237" y="195" width="8" height="20" fill="#78350F" opacity=".7" rx="2"/>
+        <rect x="319" y="195" width="8" height="20" fill="#78350F" opacity=".7" rx="2"/>
+        <!-- Wildflowers -->
+        <circle cx="40" cy="215" r="5" fill="#FBCFE8"/>
+        <circle cx="55" cy="218" r="4" fill="#F9A8D4"/>
+        <circle cx="120" cy="213" r="5" fill="#FDE68A"/>
+        <circle cx="140" cy="217" r="4" fill="#FBCFE8"/>
+        <circle cx="200" cy="214" r="5" fill="#F9A8D4"/>
+        <circle cx="220" cy="218" r="4" fill="#FBCFE8"/>
+        <circle cx="280" cy="215" r="5" fill="#FDE68A"/>
+        <circle cx="360" cy="213" r="5" fill="#FBCFE8"/>
+        <circle cx="375" cy="218" r="4" fill="#F9A8D4"/>
+        <!-- Stems for flowers -->
+        <line x1="40" y1="215" x2="40" y2="225" stroke="#16A34A" stroke-width="1.5"/>
+        <line x1="55" y1="218" x2="55" y2="226" stroke="#16A34A" stroke-width="1.5"/>
+        <line x1="120" y1="213" x2="120" y2="224" stroke="#16A34A" stroke-width="1.5"/>
+        <line x1="200" y1="214" x2="200" y2="224" stroke="#16A34A" stroke-width="1.5"/>
+        <!-- Sun -->
+        <circle cx="340" cy="45" r="30" fill="#FEF3C7" opacity=".8"/>
+        <circle cx="340" cy="45" r="22" fill="#FDE68A" opacity=".7"/>
+        <!-- Birds -->
+        <path d="M 120 70 Q 128 64 136 70" stroke="#94A3B8" stroke-width="1.5" fill="none"/>
+        <path d="M 160 58 Q 168 52 176 58" stroke="#94A3B8" stroke-width="1.5" fill="none"/>
+        <path d="M 145 80 Q 151 75 157 80" stroke="#94A3B8" stroke-width="1.3" fill="none"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Nature</div>
+        <div class="card-title">Forest Bloom</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ ARCHITECTURE 1 — Tokyo Streetscape ═══ -->
+    <div class="gallery-card reveal" data-cat="architecture" data-index="3" data-title="Tokyo Streetscape" data-caption="Architecture">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1E1B4B"/><stop offset="50%" stop-color="#7C3AED" stop-opacity=".8"/><stop offset="100%" stop-color="#EC4899" stop-opacity=".7"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky4)"/>
+        <!-- Moon -->
+        <circle cx="60" cy="50" r="22" fill="#FEF9C3" opacity=".9"/>
+        <circle cx="68" cy="44" r="18" fill="#1E1B4B" opacity=".5"/>
+        <!-- Stars -->
+        <circle cx="120" cy="30" r="1.5" fill="#FEF9C3" opacity=".8"/>
+        <circle cx="200" cy="20" r="1" fill="#FEF9C3" opacity=".7"/>
+        <circle cx="320" cy="25" r="1.5" fill="#FEF9C3" opacity=".8"/>
+        <circle cx="350" cy="45" r="1" fill="#FEF9C3" opacity=".7"/>
+        <circle cx="160" cy="45" r="1" fill="#FEF9C3" opacity=".6"/>
+        <circle cx="280" cy="15" r="1.5" fill="#FEF9C3" opacity=".8"/>
+        <!-- Building silhouettes -->
+        <rect x="0" y="140" width="50" height="120" fill="#0F0A2A" opacity=".95"/>
+        <rect x="45" y="110" width="40" height="150" fill="#1A0F3A" opacity=".95"/>
+        <rect x="80" y="130" width="35" height="130" fill="#0F0A2A" opacity=".95"/>
+        <rect x="110" y="90" width="55" height="170" fill="#1A0F3A" opacity=".95"/>
+        <!-- Tokyo Tower style -->
+        <polygon points="185,50 195,170 210,170 220,50" fill="#EC4899" opacity=".85"/>
+        <polygon points="190,50 200,80 210,50" fill="#F9A8D4" opacity=".9"/>
+        <rect x="190" y="95" width="20" height="5" fill="#F9A8D4" opacity=".8"/>
+        <rect x="192" y="120" width="16" height="5" fill="#F9A8D4" opacity=".7"/>
+        <rect x="183" y="155" width="34" height="6" fill="#DB2777" opacity=".9"/>
+        <rect x="183" y="168" width="34" height="4" fill="#DB2777" opacity=".85"/>
+        <!-- More buildings -->
+        <rect x="225" y="120" width="45" height="140" fill="#0F0A2A" opacity=".95"/>
+        <rect x="265" y="100" width="35" height="160" fill="#1A0F3A" opacity=".95"/>
+        <rect x="295" y="115" width="50" height="145" fill="#0F0A2A" opacity=".95"/>
+        <rect x="340" y="90" width="40" height="170" fill="#1A0F3A" opacity=".95"/>
+        <rect x="375" y="130" width="30" height="130" fill="#0F0A2A" opacity=".95"/>
+        <!-- Windows (lit up) -->
+        <rect x="5" y="150" width="6" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="15" y="155" width="6" height="5" fill="#FEF3C7" opacity=".6"/>
+        <rect x="5" y="165" width="6" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="50" y="120" width="6" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="60" y="130" width="6" height="5" fill="#FEF3C7" opacity=".6"/>
+        <rect x="50" y="145" width="6" height="5" fill="#FDE68A" opacity=".65"/>
+        <rect x="115" y="100" width="7" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="127" y="110" width="7" height="5" fill="#FEF3C7" opacity=".6"/>
+        <rect x="115" y="125" width="7" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="127" y="140" width="7" height="5" fill="#FDE68A" opacity=".65"/>
+        <rect x="230" y="130" width="7" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="242" y="145" width="7" height="5" fill="#FEF3C7" opacity=".6"/>
+        <rect x="300" y="125" width="7" height="5" fill="#FDE68A" opacity=".7"/>
+        <rect x="312" y="140" width="7" height="5" fill="#FDE68A" opacity=".65"/>
+        <rect x="345" y="100" width="7" height="5" fill="#FEF3C7" opacity=".6"/>
+        <rect x="357" y="115" width="7" height="5" fill="#FDE68A" opacity=".7"/>
+        <!-- Street / reflection -->
+        <rect x="0" y="210" width="400" height="50" fill="#0A0520" opacity=".8"/>
+        <rect x="0" y="210" width="400" height="2" fill="#EC4899" opacity=".4"/>
+        <!-- Neon reflections on street -->
+        <ellipse cx="200" cy="230" rx="80" ry="8" fill="#EC4899" opacity=".2"/>
+        <ellipse cx="200" cy="240" rx="50" ry="5" fill="#7C3AED" opacity=".15"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Architecture</div>
+        <div class="card-title">Tokyo Streetscape</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ ARCHITECTURE 2 — Ancient Temple ═══ -->
+    <div class="gallery-card reveal" data-cat="architecture" data-index="4" data-title="Ancient Temple" data-caption="Architecture">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FBBF24"/><stop offset="40%" stop-color="#F97316" stop-opacity=".8"/><stop offset="100%" stop-color="#DC2626" stop-opacity=".6"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky5)"/>
+        <!-- Sun setting -->
+        <circle cx="200" cy="175" r="55" fill="#FEF08A" opacity=".6"/>
+        <circle cx="200" cy="175" r="38" fill="#FDE047" opacity=".5"/>
+        <!-- Mountains -->
+        <polygon points="0,200 80,100 160,200" fill="#9F1239" opacity=".5"/>
+        <polygon points="80,200 180,80 280,200" fill="#BE123C" opacity=".4"/>
+        <polygon points="200,200 310,90 400,200" fill="#9F1239" opacity=".5"/>
+        <!-- Ground -->
+        <rect x="0" y="200" width="400" height="60" fill="#7C2D12" opacity=".7"/>
+        <!-- Pagoda — tier 5 (top) -->
+        <polygon points="185,55 200,42 215,55" fill="#1C1917"/>
+        <rect x="190" y="55" width="20" height="18" fill="#292524"/>
+        <polygon points="178,72 200,60 222,72" fill="#1C1917"/>
+        <!-- Tier 4 -->
+        <rect x="186" y="73" width="28" height="20" fill="#292524"/>
+        <polygon points="172,92 200,80 228,92" fill="#1C1917"/>
+        <!-- Tier 3 -->
+        <rect x="181" y="93" width="38" height="22" fill="#292524"/>
+        <polygon points="165,114 200,100 235,114" fill="#1C1917"/>
+        <!-- Tier 2 -->
+        <rect x="174" y="115" width="52" height="24" fill="#292524"/>
+        <polygon points="156,138 200,122 244,138" fill="#1C1917"/>
+        <!-- Tier 1 base -->
+        <rect x="165" y="139" width="70" height="28" fill="#292524"/>
+        <polygon points="145,166 200,148 255,166" fill="#1C1917"/>
+        <!-- Base platform -->
+        <rect x="150" y="167" width="100" height="14" fill="#1C1917"/>
+        <rect x="140" y="181" width="120" height="10" fill="#292524"/>
+        <rect x="130" y="191" width="140" height="10" fill="#1C1917"/>
+        <!-- Roof decoration tips (gold) -->
+        <circle cx="200" cy="42" r="3" fill="#FDE047"/>
+        <circle cx="200" cy="60" r="2" fill="#FDE047" opacity=".7"/>
+        <!-- Windows/doors -->
+        <rect x="192" y="150" width="16" height="18" fill="#7C2D12" opacity=".8"/>
+        <rect x="192" y="119" width="8" height="10" fill="#7C2D12" opacity=".6"/>
+        <rect x="202" y="119" width="8" height="10" fill="#7C2D12" opacity=".6"/>
+        <!-- Torii gate left -->
+        <rect x="50" y="165" width="6" height="36" fill="#DC2626" opacity=".85"/>
+        <rect x="86" y="165" width="6" height="36" fill="#DC2626" opacity=".85"/>
+        <rect x="45" y="163" width="52" height="6" fill="#DC2626" opacity=".9" rx="2"/>
+        <rect x="48" y="170" width="46" height="4" fill="#DC2626" opacity=".8" rx="2"/>
+        <!-- Torii gate right -->
+        <rect x="258" y="165" width="6" height="36" fill="#DC2626" opacity=".85"/>
+        <rect x="294" y="165" width="6" height="36" fill="#DC2626" opacity=".85"/>
+        <rect x="253" y="163" width="52" height="6" fill="#DC2626" opacity=".9" rx="2"/>
+        <rect x="256" y="170" width="46" height="4" fill="#DC2626" opacity=".8" rx="2"/>
+        <!-- Lanterns -->
+        <rect x="61" y="175" width="8" height="12" fill="#FDE047" opacity=".7" rx="2"/>
+        <rect x="273" y="175" width="8" height="12" fill="#FDE047" opacity=".7" rx="2"/>
+        <!-- Cherry blossoms framing -->
+        <circle cx="30" cy="130" r="18" fill="#FBCFE8" opacity=".7"/>
+        <circle cx="15" cy="118" r="14" fill="#F9A8D4" opacity=".65"/>
+        <circle cx="370" cy="128" r="18" fill="#FBCFE8" opacity=".7"/>
+        <circle cx="385" cy="115" r="14" fill="#F9A8D4" opacity=".65"/>
+        <!-- Reflection in water -->
+        <rect x="0" y="205" width="400" height="3" fill="#FDE047" opacity=".3"/>
+        <ellipse cx="200" cy="225" rx="60" ry="8" fill="#FEF08A" opacity=".2"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Architecture</div>
+        <div class="card-title">Ancient Temple</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ ARCHITECTURE 3 — Minimalist Lines ═══ -->
+    <div class="gallery-card reveal" data-cat="architecture" data-index="5" data-title="Minimalist Lines" data-caption="Architecture">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F1F5F9"/><stop offset="100%" stop-color="#E2E8F0"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky6)"/>
+        <!-- Grid lines -->
+        <line x1="0" y1="130" x2="400" y2="130" stroke="#CBD5E1" stroke-width=".5"/>
+        <line x1="200" y1="0" x2="200" y2="260" stroke="#CBD5E1" stroke-width=".5"/>
+        <line x1="0" y1="65" x2="400" y2="65" stroke="#E2E8F0" stroke-width=".5"/>
+        <line x1="0" y1="195" x2="400" y2="195" stroke="#E2E8F0" stroke-width=".5"/>
+        <line x1="100" y1="0" x2="100" y2="260" stroke="#E2E8F0" stroke-width=".5"/>
+        <line x1="300" y1="0" x2="300" y2="260" stroke="#E2E8F0" stroke-width=".5"/>
+        <!-- Main building — bold geometric -->
+        <rect x="80" y="40" width="180" height="180" fill="white" opacity=".95" stroke="#CBD5E1" stroke-width="1"/>
+        <!-- Facade grid -->
+        <line x1="110" y1="40" x2="110" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="140" y1="40" x2="140" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="170" y1="40" x2="170" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="200" y1="40" x2="200" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="230" y1="40" x2="230" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="80" y1="70" x2="260" y2="70" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="80" y1="100" x2="260" y2="100" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="80" y1="130" x2="260" y2="130" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="80" y1="160" x2="260" y2="160" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="80" y1="190" x2="260" y2="190" stroke="#E2E8F0" stroke-width="1"/>
+        <!-- Windows — lit -->
+        <rect x="85" y="45" width="22" height="22" fill="#BFDBFE" opacity=".7"/>
+        <rect x="115" y="45" width="22" height="22" fill="#D4547A" opacity=".5"/>
+        <rect x="145" y="45" width="22" height="22" fill="#BFDBFE" opacity=".6"/>
+        <rect x="175" y="45" width="22" height="22" fill="#BFDBFE" opacity=".7"/>
+        <rect x="205" y="45" width="22" height="22" fill="#D4547A" opacity=".4"/>
+        <rect x="235" y="45" width="22" height="22" fill="#BFDBFE" opacity=".6"/>
+        <rect x="85" y="75" width="22" height="22" fill="#BFDBFE" opacity=".5"/>
+        <rect x="115" y="75" width="22" height="22" fill="#BFDBFE" opacity=".7"/>
+        <rect x="145" y="75" width="22" height="22" fill="#D4547A" opacity=".4"/>
+        <rect x="175" y="75" width="22" height="22" fill="#BFDBFE" opacity=".6"/>
+        <rect x="205" y="75" width="22" height="22" fill="#BFDBFE" opacity=".7"/>
+        <rect x="235" y="75" width="22" height="22" fill="#BFDBFE" opacity=".5"/>
+        <rect x="85" y="105" width="22" height="22" fill="#D4547A" opacity=".35"/>
+        <rect x="115" y="105" width="22" height="22" fill="#BFDBFE" opacity=".6"/>
+        <rect x="145" y="105" width="22" height="22" fill="#BFDBFE" opacity=".7"/>
+        <rect x="175" y="105" width="22" height="22" fill="#BFDBFE" opacity=".5"/>
+        <rect x="205" y="105" width="22" height="22" fill="#D4547A" opacity=".4"/>
+        <rect x="235" y="105" width="22" height="22" fill="#BFDBFE" opacity=".6"/>
+        <!-- Bold accent stripe -->
+        <rect x="80" y="40" width="6" height="180" fill="#D4547A" opacity=".7"/>
+        <!-- Side building -->
+        <rect x="280" y="80" width="80" height="140" fill="white" opacity=".9" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="280" y1="110" x2="360" y2="110" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="280" y1="140" x2="360" y2="140" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="280" y1="170" x2="360" y2="170" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="280" y1="200" x2="360" y2="200" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="310" y1="80" x2="310" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+        <rect x="284" y="84" width="24" height="24" fill="#D4547A" opacity=".4"/>
+        <rect x="314" y="84" width="24" height="24" fill="#BFDBFE" opacity=".6"/>
+        <rect x="284" y="114" width="24" height="24" fill="#BFDBFE" opacity=".6"/>
+        <rect x="314" y="114" width="24" height="24" fill="#D4547A" opacity=".4"/>
+        <!-- Ground line -->
+        <rect x="0" y="220" width="400" height="40" fill="#F8FAFC"/>
+        <line x1="0" y1="220" x2="400" y2="220" stroke="#CBD5E1" stroke-width="1.5"/>
+        <!-- Shadow -->
+        <ellipse cx="170" cy="224" rx="90" ry="6" fill="#CBD5E1" opacity=".4"/>
+        <ellipse cx="320" cy="224" rx="44" ry="4" fill="#CBD5E1" opacity=".35"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Architecture</div>
+        <div class="card-title">Minimalist Lines</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ PORTRAIT 1 — Soft Gaze ═══ -->
+    <div class="gallery-card reveal" data-cat="portrait" data-index="6" data-title="Soft Gaze" data-caption="Portrait">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg7" cx="50%" cy="40%" r="70%"><stop offset="0%" stop-color="#FCE7F3"/><stop offset="100%" stop-color="#F9A8D4"/></radialGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#bg7)"/>
+        <!-- Soft background circles -->
+        <circle cx="200" cy="120" r="120" fill="#FBCFE8" opacity=".3"/>
+        <circle cx="200" cy="120" r="80" fill="#F9A8D4" opacity=".2"/>
+        <!-- Neck/shoulders -->
+        <ellipse cx="200" cy="280" rx="90" ry="60" fill="#FDDDE6" opacity=".9"/>
+        <rect x="158" y="210" width="84" height="60" fill="#FDDDE6" opacity=".85" rx="10"/>
+        <!-- Hair back -->
+        <ellipse cx="200" cy="105" rx="80" ry="95" fill="#4C1D1D" opacity=".85"/>
+        <!-- Face -->
+        <ellipse cx="200" cy="115" rx="60" ry="72" fill="#FDDDE6" opacity=".95"/>
+        <!-- Hair front/sides -->
+        <ellipse cx="148" cy="105" rx="28" ry="55" fill="#3B1111" opacity=".9"/>
+        <ellipse cx="252" cy="105" rx="28" ry="55" fill="#3B1111" opacity=".9"/>
+        <!-- Bangs -->
+        <path d="M 148 75 Q 175 55 200 70 Q 225 55 252 75 Q 240 85 220 80 Q 200 88 180 80 Q 160 85 148 75Z" fill="#4C1D1D" opacity=".9"/>
+        <!-- Eyebrows -->
+        <path d="M 172 103 Q 183 98 194 102" stroke="#4C1D1D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M 206 102 Q 217 98 228 103" stroke="#4C1D1D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Eyes -->
+        <ellipse cx="182" cy="116" rx="13" ry="9" fill="white"/>
+        <ellipse cx="218" cy="116" rx="13" ry="9" fill="white"/>
+        <circle cx="184" cy="116" r="7" fill="#4C1D1D"/>
+        <circle cx="220" cy="116" r="7" fill="#4C1D1D"/>
+        <circle cx="186" cy="114" r="2.5" fill="white" opacity=".9"/>
+        <circle cx="222" cy="114" r="2.5" fill="white" opacity=".9"/>
+        <!-- Eyelashes top -->
+        <path d="M 169 110 Q 182 104 195 110" stroke="#4C1D1D" stroke-width="1.5" fill="none"/>
+        <path d="M 205 110 Q 218 104 231 110" stroke="#4C1D1D" stroke-width="1.5" fill="none"/>
+        <!-- Nose -->
+        <path d="M 198 128 Q 196 138 200 140 Q 204 138 202 128" stroke="#E8A0A8" stroke-width="1.5" fill="none"/>
+        <!-- Lips -->
+        <path d="M 184 152 Q 200 148 216 152" stroke="#D4547A" stroke-width="1.5" fill="none"/>
+        <path d="M 184 152 Q 192 160 200 162 Q 208 160 216 152" fill="#F9A8D4" opacity=".8"/>
+        <path d="M 184 152 Q 200 148 216 152" stroke="#D4547A" stroke-width="1.5" fill="none"/>
+        <!-- Cheek blush -->
+        <ellipse cx="165" cy="132" rx="16" ry="10" fill="#F9A8D4" opacity=".4"/>
+        <ellipse cx="235" cy="132" rx="16" ry="10" fill="#F9A8D4" opacity=".4"/>
+        <!-- Petals decorating hair -->
+        <ellipse cx="145" cy="78" rx="8" ry="13" fill="#FBCFE8" opacity=".8" transform="rotate(-30 145 78)"/>
+        <ellipse cx="258" cy="80" rx="8" ry="13" fill="#FBCFE8" opacity=".8" transform="rotate(30 258 80)"/>
+        <ellipse cx="200" cy="52" rx="7" ry="11" fill="#F9A8D4" opacity=".75" transform="rotate(0 200 52)"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Portrait</div>
+        <div class="card-title">Soft Gaze</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ PORTRAIT 2 — Golden Hour ═══ -->
+    <div class="gallery-card reveal" data-cat="portrait" data-index="7" data-title="Golden Hour" data-caption="Portrait">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky8" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FCD34D"/><stop offset="50%" stop-color="#FB923C"/><stop offset="100%" stop-color="#DC2626" stop-opacity=".8"/></linearGradient>
+          <radialGradient id="sun8" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FEF08A"/><stop offset="100%" stop-color="#FCD34D" stop-opacity=".3"/></radialGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#sky8)"/>
+        <!-- Sun rays -->
+        <circle cx="200" cy="140" r="120" fill="url(#sun8)" opacity=".4"/>
+        <!-- Sun -->
+        <circle cx="200" cy="155" r="42" fill="#FEF08A" opacity=".8"/>
+        <circle cx="200" cy="155" r="30" fill="#FDE047" opacity=".9"/>
+        <!-- Horizon water -->
+        <rect x="0" y="195" width="400" height="65" fill="#B45309" opacity=".6"/>
+        <rect x="0" y="195" width="400" height="3" fill="#FCD34D" opacity=".5"/>
+        <!-- Water ripples -->
+        <ellipse cx="200" cy="210" rx="60" ry="4" fill="#FCD34D" opacity=".4"/>
+        <ellipse cx="200" cy="225" rx="90" ry="4" fill="#FCD34D" opacity=".25"/>
+        <ellipse cx="200" cy="240" rx="120" ry="3" fill="#FCD34D" opacity=".15"/>
+        <ellipse cx="100" cy="215" rx="30" ry="2" fill="#FCD34D" opacity=".2"/>
+        <ellipse cx="310" cy="215" rx="30" ry="2" fill="#FCD34D" opacity=".2"/>
+        <!-- Silhouette person -->
+        <!-- Body -->
+        <ellipse cx="200" cy="260" rx="30" ry="12" fill="#1C1917" opacity=".9"/>
+        <rect x="185" y="185" width="30" height="65" fill="#1C1917" opacity=".95" rx="4"/>
+        <!-- Head -->
+        <circle cx="200" cy="175" r="20" fill="#1C1917" opacity=".95"/>
+        <!-- Hair flowing in wind -->
+        <path d="M 200 160 Q 230 145 255 148 Q 245 162 235 168 Q 220 165 200 175" fill="#1C1917" opacity=".9"/>
+        <!-- Arm raised -->
+        <path d="M 215 200 Q 240 185 255 170" stroke="#1C1917" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <!-- Dress/skirt flowing -->
+        <path d="M 185 230 Q 165 240 155 260 L 245 260 Q 235 240 215 230 Z" fill="#1C1917" opacity=".85"/>
+        <!-- Birds in silhouette -->
+        <path d="M 80 80 Q 88 73 96 80" stroke="#7C2D12" stroke-width="1.5" fill="none"/>
+        <path d="M 100 68 Q 108 61 116 68" stroke="#7C2D12" stroke-width="1.5" fill="none"/>
+        <path d="M 290 75 Q 298 68 306 75" stroke="#7C2D12" stroke-width="1.5" fill="none"/>
+        <path d="M 320 62 Q 328 55 336 62" stroke="#7C2D12" stroke-width="1.5" fill="none"/>
+        <path d="M 140 55 Q 147 49 154 55" stroke="#92400E" stroke-width="1.5" fill="none"/>
+        <path d="M 250 60 Q 257 54 264 60" stroke="#92400E" stroke-width="1.5" fill="none"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Portrait</div>
+        <div class="card-title">Golden Hour</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+    <!-- ═══ PORTRAIT 3 — Quiet Moment ═══ -->
+    <div class="gallery-card reveal" data-cat="portrait" data-index="8" data-title="Quiet Moment" data-caption="Portrait">
+      <svg class="card-art" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bg9" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E0C3FC"/><stop offset="100%" stop-color="#8EC5FC"/></linearGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#bg9)"/>
+        <!-- Soft glow orbs -->
+        <circle cx="100" cy="80" r="70" fill="white" opacity=".1"/>
+        <circle cx="330" cy="200" r="80" fill="white" opacity=".08"/>
+        <!-- Window frame -->
+        <rect x="220" y="20" width="160" height="200" fill="white" opacity=".2" rx="4"/>
+        <rect x="220" y="20" width="160" height="200" fill="none" stroke="white" stroke-width="2" rx="4" opacity=".5"/>
+        <line x1="300" y1="20" x2="300" y2="220" stroke="white" stroke-width="1.5" opacity=".4"/>
+        <line x1="220" y1="120" x2="380" y2="120" stroke="white" stroke-width="1.5" opacity=".4"/>
+        <!-- Curtain -->
+        <path d="M 220 20 Q 230 80 220 140 Q 215 200 220 220" stroke="white" stroke-width="3" fill="none" opacity=".5"/>
+        <!-- Armchair -->
+        <rect x="40" y="185" width="160" height="60" fill="#7C3AED" opacity=".5" rx="8"/>
+        <rect x="30" y="160" width="20" height="85" fill="#6D28D9" opacity=".6" rx="6"/>
+        <rect x="190" y="160" width="20" height="85" fill="#6D28D9" opacity=".6" rx="6"/>
+        <rect x="30" y="155" width="180" height="40" fill="#8B5CF6" opacity=".55" rx="8"/>
+        <!-- Legs of chair -->
+        <rect x="45" y="238" width="10" height="22" fill="#5B21B6" opacity=".7" rx="3"/>
+        <rect x="185" y="238" width="10" height="22" fill="#5B21B6" opacity=".7" rx="3"/>
+        <!-- Person sitting -->
+        <!-- Legs -->
+        <path d="M 90 200 Q 95 220 90 245" stroke="#FDDDE6" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M 130 200 Q 128 222 140 240" stroke="#FDDDE6" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <!-- Body -->
+        <rect x="82" y="150" width="56" height="60" fill="#FDDDE6" opacity=".9" rx="10"/>
+        <!-- Clothing -->
+        <rect x="82" y="165" width="56" height="50" fill="#A78BFA" opacity=".7" rx="8"/>
+        <!-- Arms -->
+        <path d="M 82 170 Q 60 180 55 200" stroke="#FDDDE6" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path d="M 138 170 Q 158 178 162 198" stroke="#FDDDE6" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <!-- Book in hands -->
+        <rect x="55" y="195" width="110" height="18" fill="#FEF3C7" opacity=".9" rx="3"/>
+        <rect x="107" y="193" width="3" height="22" fill="#E5E7EB" opacity=".8"/>
+        <!-- Head -->
+        <circle cx="110" cy="135" r="26" fill="#FDDDE6" opacity=".95"/>
+        <!-- Hair -->
+        <path d="M 88 128 Q 90 108 110 106 Q 130 108 135 128 Q 140 115 135 105 Q 120 88 100 90 Q 82 92 84 110 Z" fill="#4C1D1D" opacity=".9"/>
+        <!-- Eyes looking down at book -->
+        <ellipse cx="103" cy="135" rx="8" ry="5" fill="white"/>
+        <ellipse cx="117" cy="135" rx="8" ry="5" fill="white"/>
+        <ellipse cx="103" cy="137" rx="5" ry="4" fill="#4C1D1D"/>
+        <ellipse cx="117" cy="137" rx="5" ry="4" fill="#4C1D1D"/>
+        <!-- Tiny light reflections -->
+        <circle cx="104" cy="136" r="1.5" fill="white" opacity=".8"/>
+        <circle cx="118" cy="136" r="1.5" fill="white" opacity=".8"/>
+        <!-- Nose/lips small -->
+        <circle cx="110" cy="145" r="1.5" fill="#E8A0A8" opacity=".6"/>
+        <path d="M 105 151 Q 110 154 115 151" stroke="#D4547A" stroke-width="1.2" fill="none"/>
+        <!-- Cup of tea on armrest -->
+        <rect x="38" y="195" width="14" height="10" fill="#FEF3C7" opacity=".9" rx="2"/>
+        <path d="M 52 199 Q 56 199 56 203 Q 56 207 52 207" stroke="#FEF3C7" stroke-width="1.5" fill="none"/>
+        <!-- Steam from cup -->
+        <path d="M 42 193 Q 44 188 42 183" stroke="white" stroke-width="1" fill="none" opacity=".5"/>
+        <path d="M 47 192 Q 49 187 47 182" stroke="white" stroke-width="1" fill="none" opacity=".4"/>
+        <!-- Floating petals -->
+        <ellipse cx="340" cy="50" rx="7" ry="11" fill="#FBCFE8" opacity=".6" transform="rotate(20 340 50)"/>
+        <ellipse cx="370" cy="90" rx="6" ry="10" fill="#F9A8D4" opacity=".55" transform="rotate(-15 370 90)"/>
+        <ellipse cx="30" cy="50" rx="6" ry="10" fill="#FBCFE8" opacity=".55" transform="rotate(35 30 50)"/>
+      </svg>
+      <div class="card-overlay">
+        <div class="card-cat-label">Portrait</div>
+        <div class="card-title">Quiet Moment</div>
+      </div>
+      <div class="zoom-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4547A" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg></div>
+    </div>
+
+  </div><!-- /gallery-grid -->
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true">
+  <div id="lb-backdrop"></div>
+  <div id="lb-box">
+    <button class="lb-close" id="lb-close">✕</button>
+    <div id="lb-art-wrap"></div>
+    <div id="lb-meta">
+      <div><div id="lb-title"></div><div id="lb-cat"></div></div>
+      <div id="lb-counter"></div>
+    </div>
+    <button class="lb-nav" id="lb-prev">‹</button>
+    <button class="lb-nav" id="lb-next">›</button>
+  </div>
+</div>
+
+<footer style="padding:32px 16px;text-align:center">
+  <div class="petals-row" style="margin-bottom:12px;font-size:15px;opacity:.35">🌸 🌸 🌸</div>
+  <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#D4547A;opacity:.5">Aarya Shinde · Kodbud Web Dev Internship · Task 6</p>
+  <p style="margin-top:4px;font-size:11px;color:#D4547A;opacity:.35;letter-spacing:.14em;text-transform:uppercase">Original SVG Illustrations</p>
+</footer>
+
+<script>
+  // Cursor
+  const $c=document.getElementById('cursor'),$d=document.getElementById('cdot');
+  document.addEventListener('mousemove',e=>{
+    $c.style.left=e.clientX+'px';$c.style.top=e.clientY+'px';
+    $d.style.left=e.clientX+'px';$d.style.top=e.clientY+'px';
+  });
+
+  // Sakura click effect
+  const em=['🌸','🌺','✿','❀','🌷','🌼'];
+  document.addEventListener('click',e=>{
+    for(let i=0;i<8;i++){
+      const p=document.createElement('div');
+      p.className='sakura-petal';
+      p.textContent=em[Math.floor(Math.random()*em.length)];
+      const a=Math.random()*360,d=50+Math.random()*90;
+      p.style.setProperty('--dx',Math.cos(a*Math.PI/180)*d+'px');
+      p.style.setProperty('--dy',Math.sin(a*Math.PI/180)*d+'px');
+      p.style.setProperty('--rot',(Math.random()*500-250)+'deg');
+      p.style.left=(e.clientX-8)+'px';p.style.top=(e.clientY-8)+'px';
+      p.style.fontSize=(11+Math.random()*13)+'px';
+      p.style.animationDuration=(.6+Math.random()*.6)+'s';
+      document.body.appendChild(p);
+      p.addEventListener('animationend',()=>p.remove());
+    }
+  });
+
+  // Scroll reveal
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((en,i)=>{
+      if(en.isIntersecting){
+        setTimeout(()=>en.target.classList.add('visible'),i*90);
+        obs.unobserve(en.target);
+      }
+    });
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Filter
+  const allCards=[...document.querySelectorAll('.gallery-card')];
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat=btn.dataset.cat;
+      allCards.forEach(c=>c.classList.toggle('hidden',cat!=='all'&&c.dataset.cat!==cat));
+    });
+  });
+
+  // Lightbox — clone the SVG into lightbox
+  const lb=document.getElementById('lightbox');
+  const lbWrap=document.getElementById('lb-art-wrap');
+  const lbTitle=document.getElementById('lb-title');
+  const lbCat=document.getElementById('lb-cat');
+  const lbCount=document.getElementById('lb-counter');
+  let vis=[],cur=0;
+
+  function getVis(){return allCards.filter(c=>!c.classList.contains('hidden'))}
+  function openLB(i){vis=getVis();cur=i;renderLB();lb.classList.add('open');document.body.style.overflow='hidden'}
+  function closeLB(){lb.classList.remove('open');document.body.style.overflow=''}
+  function renderLB(){
+    const c=vis[cur];if(!c)return;
+    lbWrap.style.opacity='0';
+    setTimeout(()=>{
+      lbWrap.innerHTML='';
+      const svg=c.querySelector('svg').cloneNode(true);
+      svg.style.width='100%';svg.style.height='100%';
+      lbWrap.appendChild(svg);
+      lbTitle.textContent=c.dataset.title;
+      lbCat.textContent=c.dataset.caption;
+      lbCount.textContent=(cur+1)+' / '+vis.length;
+      lbWrap.style.opacity='1';
+    },150);
+  }
+  function nav(d){cur=(cur+d+vis.length)%vis.length;renderLB()}
+
+  lbWrap.style.transition='opacity .18s ease';
+
+  allCards.forEach(card=>{
+    card.addEventListener('click',()=>{
+      const v=getVis(),i=v.indexOf(card);
+      if(i!==-1)openLB(i);
+    });
+  });
+  document.getElementById('lb-close').addEventListener('click',closeLB);
+  document.getElementById('lb-backdrop').addEventListener('click',closeLB);
+  document.getElementById('lb-prev').addEventListener('click',()=>nav(-1));
+  document.getElementById('lb-next').addEventListener('click',()=>nav(1));
+  document.addEventListener('keydown',e=>{
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')closeLB();
+    if(e.key==='ArrowLeft')nav(-1);
+    if(e.key==='ArrowRight')nav(1);
+  });
+  let tx=0;
+  lb.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX});
+  lb.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)nav(d<0?1:-1)});
+</script>
+</body>
+</html>
