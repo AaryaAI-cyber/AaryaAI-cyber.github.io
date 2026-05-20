@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aarya Shinde — AI & DS Portfolio</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream:      #FDF6F0;
+      --rose:       #D4547A;
+      --rose-light: #E8839F;
+      --rose-pale:  #F5C6D5;
+      --rose-deep:  #A83A5C;
+      --petal:      #FAE8EF;
+      --bark:       #3A2232;
+      --mist:       #F0E6EA;
+      --shadow:     rgba(212, 84, 122, 0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--cream);
+      color: var(--bark);
+      overflow-x: hidden;
+    }
+
+    /* ── KEYFRAMES ─────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes bounceIn {
+      0%   { transform: scale(0.85); opacity: 0; }
+      60%  { transform: scale(1.05); opacity: 1; }
+      80%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212, 84, 122, 0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(212, 84, 122, 0); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; } 50% { opacity: 0; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33%       { transform: translateY(-18px) rotate(3deg); }
+      66%       { transform: translateY(-8px) rotate(-2deg); }
+    }
+    @keyframes slowSpin {
+      from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes ripple {
+      0%   { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    /* ── Animations ───────────────────────────── */
+    .page-load { animation: fadeIn 1s ease forwards; }
+
+    .slide-in-left { animation: slideInLeft 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .slide-in-left.delay-1 { animation-delay: 0.2s; opacity: 0; }
+    .slide-in-left.delay-2 { animation-delay: 0.4s; opacity: 0; }
+    .slide-in-left.delay-3 { animation-delay: 0.6s; opacity: 0; }
+
+    .typing-cursor::after {
+      content: '|';
+      display: inline-block;
+      color: var(--rose);
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+      font-weight: 300;
+    }
+
+    .btn-bounce {
+      animation: bounceIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+      animation-delay: 0.9s;
+      opacity: 0;
+    }
+
+    .badge-pulse { animation: pulse 2.2s ease-in-out infinite; }
+
+    .float-anim { animation: float 6s ease-in-out infinite; }
+    .float-anim.f2 { animation-duration: 8s; animation-delay: 1s; }
+    .float-anim.f3 { animation-duration: 5s; animation-delay: 2.5s; }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal.delay-1 { transition-delay: 0.1s; }
+    .reveal.delay-2 { transition-delay: 0.2s; }
+    .reveal.delay-3 { transition-delay: 0.3s; }
+    .reveal.delay-4 { transition-delay: 0.4s; }
+
+    /* ── Hover ─────────────────────────────────── */
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px var(--shadow);
+    }
+    .hover-glow { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+    .hover-glow:hover { box-shadow: 0 0 0 3px var(--rose-pale); border-color: var(--rose) !important; }
+    .hover-scale { transition: transform 0.25s ease; }
+    .hover-scale:hover { transform: scale(1.06); }
+
+    /* ── Nav ───────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(253,246,240,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--rose-pale);
+      animation: fadeIn 0.8s ease forwards;
+    }
+    .nav-link {
+      position: relative;
+      color: var(--bark);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      padding-bottom: 2px;
+      transition: color 0.25s ease;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--rose);
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover { color: var(--rose); }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--rose); color: white;
+      padding: 0.75rem 1.75rem; border-radius: 50px;
+      font-size: 0.9rem; font-weight: 500; letter-spacing: 0.02em;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 18px rgba(212,84,122,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--rose-deep);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 28px rgba(212,84,122,0.45);
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--rose);
+      padding: 0.72rem 1.7rem; border-radius: 50px;
+      font-size: 0.9rem; font-weight: 500;
+      text-decoration: none; border: 1.5px solid var(--rose);
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    }
+    .btn-outline:hover { background: var(--rose); color: white; transform: translateY(-2px); }
+
+    /* ── Typography ────────────────────────────── */
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: clamp(2rem,4vw,3rem);
+      color: var(--bark);
+      line-height: 1.1;
+    }
+    .section-rule { width: 48px; height: 2px; background: var(--rose); margin-bottom: 1rem; border-radius: 2px; }
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--rose);
+    }
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem,8vw,6rem); font-weight: 300; line-height: 1; color: var(--bark);
+    }
+    .hero-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.2rem,3vw,1.8rem); font-weight: 400;
+      font-style: italic; color: var(--rose-light);
+    }
+
+    /* ── Hero ──────────────────────────────────── */
+    .hero-section {
+      min-height: 100vh; display: flex; align-items: center;
+      position: relative; overflow: hidden; padding-top: 80px;
+    }
+    .hero-bg-circle {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, var(--rose-pale) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Avatar ────────────────────────────────── */
+    .avatar-ring { position: relative; width: 260px; height: 260px; flex-shrink: 0; }
+    .avatar-ring::before {
+      content: ''; position: absolute; inset: -8px; border-radius: 50%;
+      background: conic-gradient(var(--rose), var(--rose-pale), var(--rose));
+      animation: slowSpin 8s linear infinite;
+    }
+    .avatar-inner {
+      position: relative; width: 100%; height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--petal), var(--mist));
+      border: 5px solid var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6rem; z-index: 1;
+    }
+
+    /* ── Skill bars ────────────────────────────── */
+    .skill-bar-track { background: var(--mist); border-radius: 99px; height: 8px; overflow: hidden; }
+    .skill-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--rose-pale), var(--rose), var(--rose-light));
+      background-size: 200% auto; width: 0;
+      transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+      animation: shimmer 3s linear infinite;
+    }
+
+    /* ── Project cards ─────────────────────────── */
+    .project-card {
+      background: white; border: 1px solid var(--rose-pale);
+      border-radius: 20px; overflow: hidden;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-8px); box-shadow: 0 24px 56px var(--shadow);
+      border-color: var(--rose-light);
+    }
+    .project-card:hover .project-icon { transform: scale(1.15) rotate(-5deg); }
+    .project-icon { font-size: 2.5rem; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      background: var(--petal); color: var(--rose-deep);
+      padding: 3px 10px; border-radius: 99px; font-weight: 500;
+      border: 1px solid var(--rose-pale);
+      transition: background 0.2s ease, color 0.2s ease;
+      cursor: default;
+    }
+    .tag:hover { background: var(--rose); color: white; }
+
+    /* ── Timeline ──────────────────────────────── */
+    .timeline-line {
+      position: absolute; left: 20px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--rose-pale), var(--rose), var(--rose-pale));
+    }
+    .timeline-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--rose); border: 3px solid var(--cream);
+      box-shadow: 0 0 0 3px var(--rose-pale);
+      flex-shrink: 0;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .timeline-item:hover .timeline-dot {
+      transform: scale(1.4); box-shadow: 0 0 0 5px rgba(212,84,122,0.2);
+    }
+
+    /* ── Contact ───────────────────────────────── */
+    .contact-input {
+      width: 100%; background: white; border: 1.5px solid var(--rose-pale);
+      border-radius: 12px; padding: 0.85rem 1rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      color: var(--bark); outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-input:focus {
+      border-color: var(--rose); box-shadow: 0 0 0 4px rgba(212,84,122,0.1);
+    }
+
+    /* ── Social icons ──────────────────────────── */
+    .social-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid var(--rose-pale); color: var(--rose);
+      font-size: 1.1rem; cursor: pointer; background: none;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+      text-decoration: none;
+    }
+    .social-btn:hover {
+      background: var(--rose); color: white; border-color: var(--rose);
+      transform: translateY(-3px) rotate(-5deg);
+    }
+
+    .petal-deco {
+      position: absolute; pointer-events: none;
+      user-select: none; font-size: 2rem; opacity: 0.25;
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 600; color: var(--rose); line-height: 1;
+    }
+
+    footer { border-top: 1px solid var(--rose-pale); font-size: 0.8rem; }
+
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--rose-pale), var(--rose));
+      z-index: 200; transition: width 0.1s linear; border-radius: 0 2px 2px 0;
+    }
+
+    .animate__animated { animation-fill-mode: both; }
+
+    /* ── Toast ─────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--bark); color: white;
+      padding: 1rem 1.5rem; border-radius: 12px;
+      font-size: 0.9rem; z-index: 999;
+      transform: translateY(120%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    #toast.show { transform: translateY(0); }
+  </style>
+</head>
+
+<body class="page-load">
+
+  <div id="progress-bar"></div>
+  <div id="toast">🌸 Message sent! I'll get back to you soon.</div>
+
+  <!-- ── NAV ──────────────────────────────────────── -->
+  <nav>
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3" style="cursor:pointer;" onclick="goTo('about')">
+        <span class="text-xl">🌸</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--bark);">Aarya<span style="color:var(--rose);">.</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <button class="nav-link" onclick="goTo('about')">About</button>
+        <button class="nav-link" onclick="goTo('skills')">Skills</button>
+        <button class="nav-link" onclick="goTo('projects')">Projects</button>
+        <button class="nav-link" onclick="goTo('timeline')">Journey</button>
+        <button class="nav-link" onclick="goTo('contact')">Contact</button>
+      </div>
+      <button class="btn-primary text-sm" style="padding:0.55rem 1.2rem;" onclick="goTo('contact')">Say hello ✦</button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────── -->
+  <section class="hero-section" id="about">
+    <div class="hero-bg-circle" style="width:600px;height:600px;top:-100px;right:-100px;opacity:0.6;"></div>
+    <div class="hero-bg-circle" style="width:300px;height:300px;bottom:50px;left:-80px;opacity:0.4;"></div>
+    <span class="petal-deco float-anim" style="top:15%;left:5%;">🌸</span>
+    <span class="petal-deco float-anim f2" style="top:60%;right:6%;">✿</span>
+    <span class="petal-deco float-anim f3" style="bottom:20%;left:40%;">🌺</span>
+    <span class="petal-deco float-anim" style="top:30%;right:20%;font-size:1rem;opacity:0.15;">❋</span>
+
+    <div class="max-w-6xl mx-auto px-6 w-full">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-16 py-16">
+        <div class="flex-1 max-w-xl">
+          <p class="hero-label slide-in-left delay-1 mb-4">✦ AI & Data Science Student</p>
+          <h1 class="hero-name slide-in-left delay-2 mb-4">
+            Aarya<br><span style="color:var(--rose);">Shinde</span>
+          </h1>
+          <p class="hero-sub typing-cursor slide-in-left delay-3 mb-6">
+            Building tomorrow's intelligence
+          </p>
+          <p class="slide-in-left delay-3 mb-8" style="opacity:0;color:#6B4F5A;line-height:1.8;font-size:1rem;max-width:42ch;">
+            Final-year student from Hyderabad crafting ML models, data pipelines, and web experiences. Passionate about turning raw data into meaningful insight.
+          </p>
+          <div class="flex flex-wrap gap-4 btn-bounce">
+            <button class="btn-primary animate__animated animate__pulse animate__infinite animate__slower" onclick="goTo('projects')">View Projects</button>
+            <button class="btn-outline" onclick="goTo('contact')">Get in Touch</button>
+          </div>
+          <div class="flex gap-10 mt-12">
+            <div class="reveal delay-1">
+              <div class="stat-num">12+</div>
+              <div style="font-size:0.8rem;color:#8C6A78;margin-top:2px;">Projects</div>
+            </div>
+            <div class="reveal delay-2">
+              <div class="stat-num">4+</div>
+              <div style="font-size:0.8rem;color:#8C6A78;margin-top:2px;">Internships</div>
+            </div>
+            <div class="reveal delay-3">
+              <div class="stat-num">8.7</div>
+              <div style="font-size:0.8rem;color:#8C6A78;margin-top:2px;">CGPA</div>
+            </div>
+          </div>
+        </div>
+        <div class="avatar-ring hover-scale animate__animated animate__fadeIn animate__delay-1s">
+          <div class="avatar-inner">🌸</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS ────────────────────────────────────── -->
+  <section id="skills" class="py-24" style="background:var(--mist);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="reveal">
+        <div class="section-rule"></div>
+        <h2 class="section-title mb-2">Skills & Tools</h2>
+        <p style="color:#8C6A78;font-size:0.95rem;margin-bottom:3rem;">Technologies I work with daily.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-12">
+        <div class="reveal delay-1">
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--bark);margin-bottom:1.5rem;">Core Proficiency</h3>
+          <div class="flex flex-col gap-5">
+            <div>
+              <div class="flex justify-between mb-2">
+                <span style="font-size:0.85rem;font-weight:500;">Python & ML</span>
+                <span style="font-size:0.75rem;color:var(--rose);font-family:'JetBrains Mono',monospace;">90%</span>
+              </div>
+              <div class="skill-bar-track"><div class="skill-bar-fill" data-width="90"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span style="font-size:0.85rem;font-weight:500;">Data Analysis (Pandas, NumPy)</span>
+                <span style="font-size:0.75rem;color:var(--rose);font-family:'JetBrains Mono',monospace;">85%</span>
+              </div>
+              <div class="skill-bar-track"><div class="skill-bar-fill" data-width="85"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span style="font-size:0.85rem;font-weight:500;">TensorFlow / PyTorch</span>
+                <span style="font-size:0.75rem;color:var(--rose);font-family:'JetBrains Mono',monospace;">75%</span>
+              </div>
+              <div class="skill-bar-track"><div class="skill-bar-fill" data-width="75"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span style="font-size:0.85rem;font-weight:500;">SQL & Databases</span>
+                <span style="font-size:0.75rem;color:var(--rose);font-family:'JetBrains Mono',monospace;">80%</span>
+              </div>
+              <div class="skill-bar-track"><div class="skill-bar-fill" data-width="80"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span style="font-size:0.85rem;font-weight:500;">Web Dev (HTML/CSS/JS)</span>
+                <span style="font-size:0.75rem;color:var(--rose);font-family:'JetBrains Mono',monospace;">70%</span>
+              </div>
+              <div class="skill-bar-track"><div class="skill-bar-fill" data-width="70"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal delay-2">
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--bark);margin-bottom:1.5rem;">Tech Stack</h3>
+          <div class="flex flex-wrap gap-3">
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🐍 Python</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:0.3s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🔥 PyTorch</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:0.6s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🧠 TensorFlow</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:0.9s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">📊 Pandas</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:1.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">📈 Scikit-learn</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:1.5s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🗄️ MySQL</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:1.8s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">☁️ AWS Basics</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:2.1s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">📓 Jupyter</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:2.4s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🌐 HTML/CSS/JS</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:2.7s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🐙 Git & GitHub</span>
+            <span class="badge-pulse" style="display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--rose-pale);padding:8px 16px;border-radius:99px;font-size:0.82rem;font-weight:500;animation-delay:3s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">📉 Tableau</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ──────────────────────────────────── -->
+  <section id="projects" class="py-24" style="background:var(--cream);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="reveal mb-14">
+        <div class="section-rule"></div>
+        <h2 class="section-title mb-2">Featured Projects</h2>
+        <p style="color:#8C6A78;font-size:0.95rem;">Work that challenged me and made me grow.</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div class="project-card reveal delay-1">
+          <div style="background:linear-gradient(135deg,var(--petal),var(--mist));padding:2rem 1.75rem 1.25rem;">
+            <div class="project-icon mb-3">🧠</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;margin-bottom:0.5rem;">Sentiment Analyser</h3>
+            <p style="font-size:0.85rem;color:#6B4F5A;line-height:1.7;">BERT-based model trained on 50K tweets for real-time brand sentiment detection with 91% accuracy.</p>
+          </div>
+          <div style="padding:1.25rem 1.75rem;">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag">BERT</span><span class="tag">HuggingFace</span><span class="tag">Flask</span>
+            </div>
+            <button class="btn-outline" style="font-size:0.8rem;padding:0.45rem 1.1rem;" onclick="openGitHub()">View on GitHub →</button>
+          </div>
+        </div>
+
+        <div class="project-card reveal delay-2">
+          <div style="background:linear-gradient(135deg,#FAF0F5,#FDF6F0);padding:2rem 1.75rem 1.25rem;">
+            <div class="project-icon mb-3">📊</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;margin-bottom:0.5rem;">Sales Forecasting</h3>
+            <p style="font-size:0.85rem;color:#6B4F5A;line-height:1.7;">Time-series LSTM model forecasting retail sales 30 days ahead. Deployed on AWS with live dashboard.</p>
+          </div>
+          <div style="padding:1.25rem 1.75rem;">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag">LSTM</span><span class="tag">Tableau</span><span class="tag">AWS</span>
+            </div>
+            <button class="btn-outline" style="font-size:0.8rem;padding:0.45rem 1.1rem;" onclick="openGitHub()">View on GitHub →</button>
+          </div>
+        </div>
+
+        <div class="project-card reveal delay-3">
+          <div style="background:linear-gradient(135deg,var(--mist),var(--petal));padding:2rem 1.75rem 1.25rem;">
+            <div class="project-icon mb-3">🌿</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;margin-bottom:0.5rem;">Plant Disease Detector</h3>
+            <p style="font-size:0.85rem;color:#6B4F5A;line-height:1.7;">CNN-based image classifier that detects 15 plant diseases from leaf photos with 94% precision.</p>
+          </div>
+          <div style="padding:1.25rem 1.75rem;">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag">CNN</span><span class="tag">OpenCV</span><span class="tag">Streamlit</span>
+            </div>
+            <button class="btn-outline" style="font-size:0.8rem;padding:0.45rem 1.1rem;" onclick="openGitHub()">View on GitHub →</button>
+          </div>
+        </div>
+
+        <div class="project-card reveal delay-1">
+          <div style="background:linear-gradient(135deg,#FDF0F5,#FAF6F0);padding:2rem 1.75rem 1.25rem;">
+            <div class="project-icon mb-3">💬</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;margin-bottom:0.5rem;">AI Study Buddy</h3>
+            <p style="font-size:0.85rem;color:#6B4F5A;line-height:1.7;">RAG-powered chatbot that answers questions from uploaded PDFs. Built for students during exams.</p>
+          </div>
+          <div style="padding:1.25rem 1.75rem;">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag">LangChain</span><span class="tag">RAG</span><span class="tag">Pinecone</span>
+            </div>
+            <button class="btn-outline" style="font-size:0.8rem;padding:0.45rem 1.1rem;" onclick="openGitHub()">View on GitHub →</button>
+          </div>
+        </div>
+
+        <div class="project-card reveal delay-2">
+          <div style="background:linear-gradient(135deg,var(--petal),#F0F5FA);padding:2rem 1.75rem 1.25rem;">
+            <div class="project-icon mb-3">🎨</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;margin-bottom:0.5rem;">Style Transfer App</h3>
+            <p style="font-size:0.85rem;color:#6B4F5A;line-height:1.7;">Neural style transfer applying artistic styles to photos in real-time. Served via a React frontend.</p>
+          </div>
+          <div style="padding:1.25rem 1.75rem;">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag">NST</span><span class="tag">TF</span><span class="tag">React</span>
+            </div>
+            <button class="btn-outline" style="font-size:0.8rem;padding:0.45rem 1.1rem;" onclick="openGitHub()">View on GitHub →</button>
+          </div>
+        </div>
+
+        <!-- GitHub CTA card -->
+        <div class="reveal delay-3 flex items-center justify-center"
+          style="border:2px dashed var(--rose-pale);border-radius:20px;padding:2rem;min-height:200px;text-align:center;cursor:pointer;transition:border-color 0.3s ease,background 0.3s ease;"
+          onmouseover="this.style.borderColor='var(--rose)';this.style.background='var(--petal)'"
+          onmouseout="this.style.borderColor='var(--rose-pale)';this.style.background='transparent'"
+          onclick="openGitHub()">
+          <div>
+            <div style="font-size:2.5rem;margin-bottom:0.5rem;">＋</div>
+            <p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--rose);">More on GitHub</p>
+            <p style="font-size:0.8rem;color:#8C6A78;margin-top:4px;">12+ projects and counting</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TIMELINE ───────────────────────────────────── -->
+  <section id="timeline" class="py-24" style="background:var(--mist);">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="reveal mb-14">
+        <div class="section-rule"></div>
+        <h2 class="section-title mb-2">My Journey</h2>
+        <p style="color:#8C6A78;font-size:0.95rem;">The path that shaped who I am.</p>
+      </div>
+      <div class="relative" style="padding-left:52px;">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-item reveal delay-1 flex gap-5 mb-10">
+          <div class="timeline-dot absolute" style="left:14px;top:4px;"></div>
+          <div class="hover-lift" style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--rose-pale);flex:1;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--rose);margin-bottom:4px;letter-spacing:0.1em;">2021</div>
+            <h4 style="font-weight:600;font-size:1rem;margin-bottom:4px;">B.Tech — AI & Data Science</h4>
+            <p style="font-size:0.85rem;color:#6B4F5A;">Osmania University, Hyderabad. Started the journey with a focus on ML fundamentals and mathematics.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal delay-2 flex gap-5 mb-10">
+          <div class="timeline-dot absolute" style="left:14px;top:4px;"></div>
+          <div class="hover-lift" style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--rose-pale);flex:1;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--rose);margin-bottom:4px;letter-spacing:0.1em;">2022 Summer</div>
+            <h4 style="font-weight:600;font-size:1rem;margin-bottom:4px;">Data Analytics Intern — FinTech Startup</h4>
+            <p style="font-size:0.85rem;color:#6B4F5A;">Built dashboards and SQL pipelines for transaction anomaly detection. First industry exposure.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal delay-3 flex gap-5 mb-10">
+          <div class="timeline-dot absolute" style="left:14px;top:4px;"></div>
+          <div class="hover-lift" style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--rose-pale);flex:1;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--rose);margin-bottom:4px;letter-spacing:0.1em;">2023</div>
+            <h4 style="font-weight:600;font-size:1rem;margin-bottom:4px;">ML Research Assistant</h4>
+            <p style="font-size:0.85rem;color:#6B4F5A;">University research lab — NLP for regional Indian languages. Co-authored a paper on Telugu sentiment analysis.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal delay-4 flex gap-5">
+          <div class="timeline-dot absolute" style="left:14px;top:4px;background:var(--rose-deep);"></div>
+          <div class="hover-lift" style="background:white;border-radius:16px;padding:1.5rem;border:2px solid var(--rose);flex:1;box-shadow:0 4px 20px var(--shadow);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--rose);letter-spacing:0.1em;">2024 — Present</span>
+              <span class="badge-pulse" style="background:var(--petal);color:var(--rose-deep);font-size:0.65rem;padding:2px 10px;border-radius:99px;font-weight:600;border:1px solid var(--rose-pale);">NOW</span>
+            </div>
+            <h4 style="font-weight:600;font-size:1rem;margin-bottom:4px;">Web Dev Intern — Kodbud</h4>
+            <p style="font-size:0.85rem;color:#6B4F5A;">Expanding skills in frontend development. Building real-world projects — including this very portfolio page!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ────────────────────────────────────── -->
+  <section id="contact" class="py-24" style="background:var(--cream);">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="reveal mb-14 text-center">
+        <div class="section-rule mx-auto"></div>
+        <h2 class="section-title mb-2">Let's Connect</h2>
+        <p style="color:#8C6A78;font-size:0.95rem;">Open to collaborations, internships and good conversations.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-12">
+
+        <div class="reveal delay-1">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--bark);margin-bottom:1rem;line-height:1.2;">
+            Got a project in mind? <span style="color:var(--rose);font-style:italic;">Let's talk.</span>
+          </div>
+          <p style="font-size:0.9rem;color:#6B4F5A;line-height:1.8;margin-bottom:2rem;">I'm especially interested in ML engineering roles, research collaborations, and building AI tools that solve real problems.</p>
+
+          <div class="flex gap-3 mb-6">
+            <!-- GitHub -->
+            <button class="social-btn" title="GitHub" onclick="openGitHub()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.4.6.1.82-.26.82-.58v-2c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </button>
+            <!-- LinkedIn -->
+            <button class="social-btn" title="LinkedIn" onclick="openLinkedIn()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg>
+            </button>
+            <!-- Email -->
+            <button class="social-btn" title="Email" onclick="openEmail()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+            </button>
+          </div>
+
+          <p style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--rose);cursor:pointer;" onclick="openEmail()">aaryashinde.s24@gmail.com</p>
+        </div>
+
+        <div class="reveal delay-2">
+          <div class="flex flex-col gap-4">
+            <div>
+              <label style="font-size:0.8rem;font-weight:500;display:block;margin-bottom:6px;">Your Name</label>
+              <input id="sender-name" type="text" placeholder="Priya Sharma" class="contact-input hover-glow" />
+            </div>
+            <div>
+              <label style="font-size:0.8rem;font-weight:500;display:block;margin-bottom:6px;">Email</label>
+              <input id="sender-email" type="email" placeholder="priya@example.com" class="contact-input hover-glow" />
+            </div>
+            <div>
+              <label style="font-size:0.8rem;font-weight:500;display:block;margin-bottom:6px;">Message</label>
+              <textarea id="sender-msg" rows="4" placeholder="Tell me about your project or idea..." class="contact-input hover-glow" style="resize:vertical;"></textarea>
+            </div>
+            <button id="send-btn" class="btn-primary" style="align-self:flex-start;" onclick="handleSubmit()">
+              Send Message 🌸
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────── -->
+  <footer class="py-8" style="background:var(--bark);color:rgba(255,255,255,0.6);">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--rose-pale);">Aarya Shinde — AI & DS</div>
+      <div style="font-size:0.8rem;">Made with 🌸 for Kodbud Internship Task 8</div>
+      <div style="font-size:0.8rem;">Hyderabad, 2024</div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── User profile links ──────────────────── */
+    const GITHUB_URL   = 'https://github.com/aarya-shinde';
+    const LINKEDIN_URL = 'https://www.linkedin.com/in/aarya-shinde-b6231427b';
+    const EMAIL        = 'aaryashinde.s24@gmail.com';
+
+    function openGitHub()   { window.open(GITHUB_URL,   '_blank'); }
+    function openLinkedIn() { window.open(LINKEDIN_URL, '_blank'); }
+    function openEmail()    { window.open('mailto:' + EMAIL); }
+
+    /* ── Smooth scroll (no href, avoids iframe nav warning) */
+    function goTo(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ── Progress bar ─────────────────────────── */
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+      document.getElementById('progress-bar').style.width = Math.min(pct, 100) + '%';
+    });
+
+    /* ── Scroll reveal ────────────────────────── */
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          e.target.querySelectorAll('.skill-bar-fill').forEach(b => {
+            b.style.width = b.dataset.width + '%';
+          });
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    /* ── Skill bars trigger ───────────────────── */
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        document.querySelectorAll('.skill-bar-fill').forEach(b => {
+          b.style.width = b.dataset.width + '%';
+        });
+      }
+    }, { threshold: 0.2 }).observe(document.getElementById('skills'));
+
+    /* ── Hero stats on load ──────────────────── */
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.hero-section .reveal').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 800 + i * 200);
+      });
+    });
+
+    /* ── Form send via mailto ────────────────── */
+    function handleSubmit() {
+      const name    = document.getElementById('sender-name').value.trim();
+      const email   = document.getElementById('sender-email').value.trim();
+      const message = document.getElementById('sender-msg').value.trim();
+
+      if (!name || !email || !message) {
+        showToast('⚠️ Please fill in all fields first.');
+        return;
+      }
+
+      const subject = encodeURIComponent('Portfolio Contact from ' + name);
+      const body    = encodeURIComponent(
+        'Name: ' + name + '\nEmail: ' + email + '\n\n' + message
+      );
+      window.open('mailto:' + EMAIL + '?subject=' + subject + '&body=' + body);
+
+      const btn = document.getElementById('send-btn');
+      btn.textContent = '✓ Opening mail app…';
+      btn.style.background = '#27ae60';
+      btn.classList.add('animate__animated', 'animate__bounceIn');
+      showToast('🌸 Your mail app will open — just hit send!');
+
+      setTimeout(() => {
+        btn.textContent = 'Send Message 🌸';
+        btn.style.background = '';
+        btn.classList.remove('animate__animated', 'animate__bounceIn');
+        document.getElementById('sender-name').value  = '';
+        document.getElementById('sender-email').value = '';
+        document.getElementById('sender-msg').value   = '';
+      }, 3500);
+    }
+
+    /* ── Toast helper ────────────────────────── */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    /* ── Nav active highlight ────────────────── */
+    const sections = document.querySelectorAll('section[id]');
+    const navBtns  = document.querySelectorAll('.nav-link');
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navBtns.forEach(b => b.style.color = '');
+          const id = e.target.id;
+          navBtns.forEach(b => {
+            if (b.textContent.toLowerCase().includes(
+              id === 'about' ? 'about' :
+              id === 'skills' ? 'skill' :
+              id === 'projects' ? 'project' :
+              id === 'timeline' ? 'journey' : 'contact'
+            )) b.style.color = 'var(--rose)';
+          });
+        }
+      });
+    }, { threshold: 0.4 }).observe.call(
+      new IntersectionObserver(() => {}),
+      document.body
+    );
+    // Simpler active-nav approach
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const map = {about:'About',skills:'Skills',projects:'Projects',timeline:'Journey',contact:'Contact'};
+        navBtns.forEach(b => {
+          b.style.color = b.textContent.trim() === map[e.target.id] ? 'var(--rose)' : '';
+        });
+      });
+    }, { threshold: 0.45 }).observe.call && sections.forEach(s =>
+      new IntersectionObserver((entries) => {
+        if (!entries[0].isIntersecting) return;
+        const map = {about:'About',skills:'Skills',projects:'Projects',timeline:'Journey',contact:'Contact'};
+        navBtns.forEach(b => {
+          b.style.color = b.textContent.trim() === map[s.id] ? 'var(--rose)' : '';
+        });
+      }, { threshold: 0.45 }).observe(s)
+    );
+  </script>
+
+</body>
+</html>
