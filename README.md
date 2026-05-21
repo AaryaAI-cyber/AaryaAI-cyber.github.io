@@ -1,3 +1,8 @@
+© 2026 Aarya Shinde. All rights reserved.
+All projects in this repository are original work by Aarya Shinde.
+Unauthorized copying or reuse without credit is not permitted.
+aaryaai-cyber.github.io
+
 # AaryaAI-cyber.github.io
 # Aarya Shinde — Web Development Portfolio
 
